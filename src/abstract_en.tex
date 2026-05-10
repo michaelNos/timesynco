@@ -1,0 +1,25 @@
+%!TEX root = ../main.tex
+
+\begin{changemargin}{0.8cm}{0.8cm}
+
+~\vfill{}
+
+\section*{Abstract}
+\vskip 0.5em
+
+\sloppy
+This thesis presents the design, implementation, and evaluation of a microcontroller-based time synchronization prototype intended for UAV swarm-related experiments. The developed system combines DCF77 absolute time reception, RTK PPS-based second generation, STM32 firmware processing, UART diagnostic communication, and ROS2-based logging and analysis.
+
+The hardware implementation is based on a custom STM32F042F6P6 PCB with USB-C power input, 3.3 V regulation, DCF77 and RTK PPS timing inputs, SWD debugging, and UART diagnostic output. Native STM32 USB communication was investigated during development, but the final validated communication path used an external CP2102 USB-UART bridge because it provided more reliable operation.
+
+The firmware decodes and validates DCF77 frames, maintains a software real-time clock, processes RTK PPS interrupt events, and transmits synchronization diagnostics to the companion-computer environment. ROS2 nodes receive the UART messages, publish them to topics, store CSV logs, and support Python-based post-processing.
+
+The final evaluation confirmed stable DCF77-based time acquisition and RTK PPS-driven second generation. In the final RTK PPS test, the measured \texttt{RTK\_DIFF} remained equal to 0 ms for all synchronized samples at millisecond-level measurement resolution, with an estimated drift of 0.000 ms/s. The results do not prove sub-microsecond synchronization accuracy, but they validate a functional synchronization prototype with no observable long-term software-clock drift at the implemented measurement resolution.
+
+\vskip 1em
+
+{\bf Keywords:} \Keywords
+
+\vskip 2.5cm
+
+\end{changemargin}

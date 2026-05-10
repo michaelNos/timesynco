@@ -1,0 +1,40 @@
+%!TEX root = ../main.tex
+
+\chapter{Conclusion\label{chap:conclusion}}
+
+This thesis presented the design, implementation, and evaluation of a microcontroller-based time synchronization prototype intended for UAV swarm-related experiments. The final system combines DCF77 absolute time reception, RTK PPS-based second generation, STM32 firmware processing, UART diagnostic communication, and ROS2-based logging and analysis.
+
+The developed prototype demonstrates a practical hardware-assisted synchronization architecture. DCF77 is used to acquire absolute calendar time, while the RTK PPS signal is used as a stable one-second reference after synchronization. The STM32 firmware decodes and validates DCF77 frames, maintains a software real-time clock, processes PPS interrupts, and transmits synchronization diagnostics to the companion-computer environment.
+
+The evaluation confirmed that the final PPS-driven implementation eliminated the observable long-term drift that occurred when the software clock relied only on the local timer. During the final RTK PPS test, the measured \texttt{RTK\_DIFF} remained equal to 0 ms for all synchronized samples at millisecond-level measurement resolution. The ROS2 pipeline also successfully supported single-board logging, two-board comparison, CSV storage, and Python-based analysis.
+
+The results should be interpreted according to the limitations of the measurement method. The implemented evaluation does not prove sub-microsecond synchronization accuracy, because it is based on firmware diagnostics, UART transmission, ROS2 logs, and millisecond-level timing visibility. Instead, the thesis validates stable DCF77-based time acquisition, RTK PPS-driven second generation, reliable UART/ROS2 integration, and no observable long-term software-clock drift at the available measurement resolution.
+
+Overall, the work provides a functional and extensible prototype that can serve as a foundation for future UAV synchronization experiments and more precise hardware-level timing validation.
+
+\section{Summary of Results}
+
+The main result of this thesis is a working STM32-based synchronization prototype that combines DCF77 absolute time acquisition with RTK PPS-driven second generation. The system was implemented on a custom PCB and integrated with a ROS2-based evaluation pipeline through UART communication.
+
+The hardware part of the work resulted in a compact PCB containing the STM32F042F6P6 microcontroller, USB-C power input, 3.3 V voltage regulation, SWD debugging interface, DCF77 input, RTK PPS input, and UART diagnostic output. Native STM32 USB communication was investigated during development, but the final validated communication path used an external CP2102 USB-UART bridge because it provided more reliable operation.
+
+The firmware successfully implemented DCF77 pulse measurement, frame decoding, parity validation, plausibility checking, software real-time clock maintenance, RTK PPS interrupt processing, and UART diagnostic message generation. After a valid DCF77 frame initialized the software clock, accepted RTK PPS events were used to increment the clock by one second.
+
+The ROS2 integration provided serial data reception, topic publication, CSV logging, two-board comparison, and Python-based analysis. This made it possible to evaluate both the firmware-level synchronization behavior and the communication-level arrival-time behavior.
+
+The final RTK PPS evaluation showed that the software-clock second generation remained aligned with the PPS event at millisecond-level measurement resolution. The measured \texttt{RTK\_DIFF} remained equal to 0 ms for all synchronized samples, and the estimated drift was 0.000 ms/s. This confirms that the final PPS-driven implementation eliminated the observable long-term drift of the previous local-timer-based approach.
+
+The achieved result is therefore not a proof of sub-microsecond synchronization accuracy, but a validated functional prototype demonstrating DCF77-based absolute time synchronization, RTK PPS-driven clock generation, stable UART communication, and ROS2-based evaluation.
+
+\section{Future Work}
+
+Several improvements can be made in future revisions of the synchronization system. The most important direction is direct hardware-level timing measurement. The current prototype evaluates synchronization behavior using firmware diagnostics, UART messages, ROS2 logs, and millisecond-level timing visibility. Future work should use STM32 timer input capture, an oscilloscope, or a dedicated time interval counter to measure PPS timing with microsecond or sub-microsecond resolution.
+
+The firmware can also be extended to decode GNSS time messages directly from the RTK receiver. In the current implementation, absolute calendar time is obtained from DCF77 and the RTK receiver is used mainly through its PPS output. Direct GNSS time decoding would allow the system to obtain both absolute time and PPS timing from the GNSS receiver, while DCF77 could remain as a backup reference.
+
+Another improvement is a more advanced clock-discipline algorithm. The current implementation increments the software real-time clock directly from accepted PPS events. Future versions could estimate oscillator skew, compensate timer drift between PPS events, and provide higher-resolution timestamps inside each second.
+
+The hardware can also be improved. Future PCB revisions should consider connecting the PPS signal to a timer input-capture channel, replacing the AMS1117 regulator with a more efficient low-quiescent-current regulator or switching converter, and improving protection and filtering on external timing inputs. Additional testing of signal integrity, power integrity, and electromagnetic robustness should be performed under UAV-like conditions.
+
+Finally, the system should be validated in a complete UAV platform and later in a multi-UAV experiment. Such testing should include onboard power supply conditions, motor and ESC noise, vibration, outdoor DCF77 and GNSS reception, and integration with real UAV sensor and control software. This would extend the current laboratory and ROS2-based prototype into a fully evaluated UAV synchronization module.
+

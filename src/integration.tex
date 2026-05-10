@@ -1,0 +1,67 @@
+%!TEX root = ../main.tex
+
+\chapter{Integration with UAV System\label{chap:integration}}
+
+This chapter describes how the synchronization prototype was integrated with a companion-computer environment using UART communication and ROS2. The purpose of this integration was to collect synchronization diagnostics, publish received data to ROS2 topics, and store measurements for later analysis.
+
+The implemented integration should be understood as a laboratory and ROS2-based validation pipeline rather than a full flight-tested UAV deployment. The STM32 synchronization module generates local time information from DCF77 and RTK PPS signals, while the companion computer receives this information through a CP2102 USB-UART bridge \cite{cp2102Datasheet}. ROS2 is then used for logging, monitoring, and comparison of synchronization streams \cite{ros2Docs}.
+
+The chapter first describes the ROS2 node architecture, then explains the data exchange between the STM32 module and the companion-computer environment. Finally, it summarizes the performed integration tests and clarifies the practical limitations of the current prototype.
+
+\section{ROS Node Architecture}
+
+The ROS2 integration was implemented as a small Python-based package used to receive, publish, compare, and log synchronization data from the STM32 module. The ROS2 environment was used as an evaluation layer and not as the primary synchronization mechanism. The local clock remained disciplined by DCF77 and RTK PPS events inside the STM32 firmware.
+\\
+The main ROS2 components are:
+\begin{itemize}
+    \item a serial reader node for receiving UART messages from the STM32 module,
+    \item configurable ROS2 topics for publishing raw synchronization messages,
+    \item a comparison node for evaluating two synchronization streams,
+    \item CSV logging for later analysis using Python scripts.
+\end{itemize}
+
+The serial reader node opens the selected USB-UART device, reads synchronization messages line by line, publishes each message as a ROS2 string topic, and stores the raw data together with the ROS2 arrival timestamp in a CSV file. This implementation is shown in Code~\ref{lst:rosSerialNode}.
+
+For two-board experiments, two serial reader nodes can run in parallel, each connected to a different CP2102 USB-UART bridge. The comparison node subscribes to both synchronization topics, parses the received time messages, compares the reported DCF77-based time values, and logs the resulting differences. The comparison node is shown in Code~\ref{lst:rosCompareNode}.
+
+This ROS2 architecture provides a flexible evaluation pipeline. It allows the synchronization output of one or more boards to be monitored in real time, stored for offline analysis, and compared without modifying the embedded synchronization firmware \cite{ros2Docs}.
+
+\section{Data Exchange with Companion Computer}
+
+Data exchange between the STM32 synchronization module and the companion-computer environment is performed using asynchronous UART communication. During final validation, the UART signal from the STM32 was connected to the computer through a CP2102 USB-UART bridge \cite{cp2102Datasheet}. This provided a stable communication path for receiving synchronization diagnostics.
+
+The STM32 firmware transmits one formatted diagnostic line for each reported synchronization state. The message contains the current software-clock time, date, PCB identifier, synchronization flag, last valid DCF77 frame, RTK PPS counter, measured PPS period, and RTK difference value. A typical synchronized message has the form:
+\begin{verbatim}
+HH:MM:SS - DD.MM.20YY - PCB_01 - SYNC=1 - LASTDCF=DD.MM.20YY_HH:MM
+- RTK_PPS=N - RTK_DELTA=1000ms - RTK_DIFF=0ms
+\end{verbatim}
+On the companion-computer side, the ROS2 serial node reads the UART stream, removes invalid or empty lines, publishes the received data to a ROS2 topic, and stores the raw line in a CSV file together with the ROS2 arrival timestamp. This makes it possible to analyze both the time reported by the STM32 and the message arrival behavior observed by the computer.
+
+It is important to distinguish between the STM32 synchronization time and the ROS2 arrival time. The STM32 time is generated locally from DCF77 and RTK PPS events, while the ROS2 timestamp represents when the diagnostic message was received by the operating system and ROS2 middleware. Therefore, ROS2 arrival timing is useful for communication analysis but is not used to discipline the STM32 clock.
+
+This data exchange structure keeps the embedded synchronization logic independent from the companion-computer environment while still providing enough diagnostic information for validation and post-processing.
+
+\section{Testing on UAV Platform}
+
+The implemented synchronization system was tested in a ROS2-based companion-computer environment rather than in a complete flight-tested UAV deployment. The purpose of this testing was to verify the communication pipeline, synchronization-state reporting, ROS2 topic publication, CSV logging, and timing-analysis workflow.
+
+The test environment used the STM32 synchronization PCB connected to the computer through a CP2102 USB-UART bridge. The firmware generated diagnostic messages containing DCF77 synchronization status, software-clock time, RTK PPS counter, measured PPS period, and RTK difference. These messages were read by ROS2 nodes running in the Ubuntu environment and were stored for later analysis.
+\\
+The performed integration tests included:
+\begin{itemize}
+    \item verification of UART communication between the STM32 and companion computer,
+    \item validation of ROS2 topic publication from the serial reader node,
+    \item CSV logging of synchronization messages,
+    \item monitoring of DCF77 synchronization state,
+    \item monitoring of RTK PPS-driven clock operation,
+    \item comparison of synchronization streams from two boards.
+\end{itemize}
+
+These tests confirmed that the synchronization module can be integrated with the ROS2 software environment used for UAV-related experiments. However, the prototype was not validated in a complete UAV flight test with motors, vibration, and onboard power electronics. Therefore, the results should be interpreted as successful laboratory and ROS2 integration, while full UAV platform validation remains future work.
+
+\section{Integration Summary}
+
+The integration pipeline successfully connected the STM32 synchronization module with the ROS2 evaluation environment. The final data path used UART output from the STM32, CP2102 USB-UART conversion, ROS2 serial reading, topic publication, and CSV logging. This allowed synchronization behavior to be monitored and analyzed without using ROS2 as the clock synchronization source.
+
+The main limitation of the integration stage is that validation was performed in a laboratory ROS2 environment rather than during a complete UAV flight test. Nevertheless, the implemented pipeline provides a practical foundation for future integration with UAV onboard computers and MRS-based experimental platforms.
+

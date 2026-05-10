@@ -1,0 +1,394 @@
+%!TEX root = ../main.tex
+
+\chapter{Hardware Implementation\label{chap:hardwareImplementation}}
+
+This chapter describes the custom hardware platform developed for the synchronization module. The implementation is based on an STM32F042F6P6 microcontroller, external timing-signal inputs, USB-C power supply, SWD programming interface, and UART diagnostic output. The overall hardware concept is shown in Fig.~\ref{fig:blockDiagram}.
+
+The hardware was designed to support the final synchronization architecture described in Chapter~3. The DCF77 input provides the absolute time signal, while the RTK PPS input provides the stable one-second reference. Both signals are routed to the microcontroller for interrupt-based processing. The generated synchronization information is transmitted through UART and converted to USB using an external CP2102 USB-UART bridge during testing.
+
+The chapter first presents the microcontroller core and its supporting reset, boot, clock, and debug circuitry. It then describes the timing-signal interfaces, power supply design, PCB layout, grounding strategy, and practical design decisions made during prototype development. The schematic sheets are shown in Fig.~\ref{fig:usbPowerRegulator}, Fig.~\ref{fig:mcuCore}, and Fig.~\ref{fig:timingInterfaces}, while the PCB layout and mechanical realization are shown in Fig.~\ref{fig:pcbLayout} and Fig.~\ref{fig:pcb3d}.
+
+The hardware design, including the schematic sheets and PCB layout, was prepared in Altium Designer \cite{altiumDesignerDocs}. The overall hardware concept is shown in Fig.~\ref{fig:blockDiagram}. The detailed schematic sheets and PCB layout were created as part of the thesis hardware prototype \cite{PCBtimesynco}.
+
+\section{Microcontroller Core Design}
+
+The central component of the synchronization module is the STM32F042F6P6 microcontroller. This device was selected because it provides a compact ARM Cortex-M0 core, GPIO interrupt capability, hardware timers, UART communication, SWD debugging, and sufficient resources for the implemented synchronization firmware \cite{stm32F042Datasheet,stm32F0ReferenceManual}. The MCU core schematic is shown in Fig.~\ref{fig:mcuCore}.
+
+In the developed prototype, the STM32 performs the main timing and control tasks. It measures the DCF77 signal edges, decodes and validates the received time frame, maintains the software real-time clock, processes RTK PPS interrupts, and generates UART diagnostic messages for the ROS2 evaluation pipeline.
+
+Although the STM32F042 includes an integrated USB peripheral, native USB communication was not used in the final validated architecture because it was not reliable on the prototype hardware. Instead, UART communication through an external CP2102 USB-UART bridge was used for stable data transfer to the companion-computer environment.
+
+The MCU core design therefore focuses on reliable interrupt-based timing, simple clock configuration, stable UART diagnostics, and accessible SWD debugging rather than on using all available peripherals of the microcontroller.
+
+\subsection{Device Selection Rationale}
+
+The STM32F042F6P6 was selected as the main processing unit because it provides the required timing, interrupt, and communication peripherals in a compact package. The device is based on the ARM Cortex-M0 core and is suitable for low-complexity embedded timing applications \cite{stm32F042Datasheet,stm32F0ReferenceManual}.
+\\
+The main reasons for selecting this microcontroller were:
+\begin{itemize}
+    \item compact TSSOP20 package suitable for a small prototype PCB,
+    \item GPIO pins with external interrupt capability for DCF77 and RTK PPS signal detection,
+    \item TIM2 hardware timer for pulse-width and interval measurements,
+    \item UART interface for diagnostic communication with the companion-computer environment,
+    \item SWD interface for firmware flashing and debugging,
+    \item sufficient flash and RAM resources for DCF77 decoding, software RTC maintenance, PPS processing, and UART message generation.
+\end{itemize}
+
+The STM32F042F6P6 also includes an integrated USB Full-Speed peripheral. This feature was considered during development, but native USB communication was not used in the final validated system because the prototype showed unstable USB behavior. The final communication path therefore uses UART through an external CP2102 USB-UART bridge.
+
+Overall, the selected microcontroller provided a suitable balance between size, simplicity, peripheral availability, and firmware development support for the synchronization prototype.
+
+\subsection{Clock Architecture}
+
+The clock architecture of the prototype was designed for stable firmware execution and reliable timing measurements rather than maximum clock frequency. The STM32F042F6P6 supports several clock sources, including the internal HSI oscillator, the internal HSI48 oscillator, external clock inputs, and PLL-based configurations \cite{stm32F042Datasheet,stm32F0ReferenceManual}.
+
+In the final validated firmware, the microcontroller used the internal HSI clock at 8 MHz without PLL multiplication. This configuration was selected because it provided stable operation during development and testing. Earlier USB-related configurations using the HSI48 clock were tested, but they caused unreliable behavior on the prototype hardware and were therefore not used in the final communication path.
+
+TIM2 was configured as the main timing counter. With an 8 MHz timer clock and a prescaler value of $8000 - 1$, the timer counting frequency becomes
+
+\begin{equation}
+f_{TIM2} = \frac{8\,000\,000}{8000} = 1000~\mathrm{Hz}.
+\end{equation}
+
+The corresponding timer resolution is therefore
+\begin{equation}
+\Delta t_{TIM2} = 1~\mathrm{ms}.
+\end{equation}
+
+This resolution is sufficient for DCF77 pulse-width measurement, where logical values are represented by pulse lengths of approximately 100 ms and 200 ms. It is also sufficient for the implemented diagnostic evaluation of RTK PPS behavior. However, this configuration does not provide direct microsecond-level timestamping. For future higher-resolution timing measurements, a faster timer configuration or hardware input-capture setup would be required.
+
+The final clock architecture therefore combines a stable internal MCU clock for firmware execution and millisecond-level timing measurements with external DCF77 and RTK PPS references for long-term time synchronization.
+
+\subsection{PPS Input Configuration}
+
+The RTK PPS signal is connected to an STM32 GPIO pin configured as an external interrupt input. In the final firmware configuration, the PPS signal is assigned to PA4 and configured for rising-edge detection. The input uses a pull-down configuration so that the signal remains in a defined logic state when no active PPS pulse is present.
+
+The PPS interrupt is used only after the software clock has been initialized from a valid DCF77 frame. Once synchronization is active, every accepted PPS rising edge increments the software real-time clock by one second. This makes the RTK PPS signal the stable second-generation source for the final firmware.
+
+The PPS input is processed separately from UART communication and ROS2 logging. The interrupt updates timing-related variables and sets flags for later diagnostic output, while the formatted UART message is transmitted in the main loop. This prevents communication tasks from directly affecting PPS-based clock generation.
+
+Although the STM32 timer input-capture peripheral would provide more precise hardware timestamping, the final prototype used EXTI-based PPS detection. This implementation was sufficient for verifying stable PPS-driven second generation at millisecond-level measurement resolution. Future revisions should consider connecting PPS to a timer input-capture channel for direct microsecond-level timing evaluation.
+
+\subsection{Reset and Boot Configuration}
+
+The reset and boot circuitry ensures that the STM32F042F6P6 starts reliably after power-up and enters the correct boot mode. The corresponding part of the MCU schematic is shown in Fig.~\ref{fig:mcuCore}.
+
+The BOOT0 pin is pulled low so that the microcontroller boots from internal Flash memory during normal operation. This is required because the final firmware is stored in the internal program memory and should start automatically after reset or power cycling.
+
+The NRST pin is connected to a pull-up resistor and reset push button. The pull-up keeps the microcontroller out of reset during normal operation, while the push button allows manual reset during debugging and testing. This was useful during firmware development, especially when testing synchronization behavior, UART output, and recovery after power cycling.
+
+This reset and boot configuration provides a simple and reliable startup path for the prototype while keeping the board easy to program and debug through the SWD interface.
+
+\subsection{Debug Interface}
+
+The prototype includes a Serial Wire Debug (SWD) interface for firmware programming and debugging. The SWD connection provides access to the STM32 debug port and allows the firmware to be flashed directly from STM32CubeIDE using an ST-LINK compatible programmer. The debug interface is shown in the MCU schematic in Fig.~\ref{fig:mcuCore}.
+\\
+The SWD interface includes the required debug signals:
+\begin{itemize}
+    \item SWDIO,
+    \item SWCLK,
+    \item NRST,
+    \item 3.3 V reference,
+    \item GND.
+\end{itemize}
+
+During development, the debug interface was used to program the firmware, inspect variables, verify interrupt behavior, and test the DCF77 and RTK PPS processing logic. Access to NRST was especially useful for reliable reset control during repeated flashing and testing.
+
+The SWD interface is independent of the synchronization and UART communication paths. Therefore, debugging and programming access can be used without changing the final timing architecture of the board.
+
+\section{DCF77 and RTK PPS Interface Design}
+
+The synchronization accuracy and reliability of the prototype depend on correct routing and processing of the external timing signals. The final design uses two timing inputs: the DCF77 receiver signal for absolute calendar-time acquisition and the RTK PPS signal for stable second generation. The interface schematic is shown in Fig.~\ref{fig:timingInterfaces}.
+
+The DCF77 signal is routed to the STM32 input used for external interrupt processing. Both rising and falling edges are used by the firmware to measure pulse width and detect the minute marker. These measurements allow the received DCF77 frame to be decoded and validated before the software clock is initialized.
+
+The RTK PPS signal is routed to a separate STM32 external interrupt input. After a valid DCF77 synchronization, the PPS rising edge becomes the main one-second event used to increment the software real-time clock. This separates absolute time acquisition from stable second generation.
+
+The interface design also includes routing for RTK-related connector signals and UART communication paths. However, in the final firmware, the STM32 does not decode full GNSS time messages or process RTK correction data. The RTK receiver contributes to the synchronization pipeline through its PPS output.
+
+\subsection{PPS Signal Routing}
+
+The RTK PPS signal is routed from the timing interface connector to the STM32 input assigned for PPS detection. In the final firmware configuration, this signal is connected to PA4 and processed as an external interrupt on the rising edge. The PPS routing is shown in Fig.~\ref{fig:timingInterfaces} and its connection to the MCU can be seen in Fig.~\ref{fig:mcuCore}.
+
+The PPS trace is kept short and direct in order to reduce unnecessary propagation delay, noise pickup, and signal distortion. Since the PPS edge defines the moment when the software clock is incremented, preserving a clean rising edge is important for stable timing behavior.
+
+A series resistor is included in the timing-signal path to reduce ringing and limit fast-edge current transients. This improves signal integrity and electromagnetic compatibility without significantly delaying the PPS edge.
+
+In the final prototype, the PPS signal is used as an interrupt-based second trigger. After the software clock is initialized from a valid DCF77 frame, each accepted PPS event increments the software clock by one second. The PPS path therefore forms the main timing-stability input of the implemented synchronization architecture.
+
+\subsection{Direct Edge Detection}
+
+The external timing signals are routed directly to STM32 GPIO pins configured for interrupt-based edge detection. This avoids additional active components in the timing path and keeps the signal chain simple. The DCF77 input and RTK PPS input are processed locally by the STM32 firmware after their corresponding signal edges are detected.
+
+For the DCF77 signal, both rising and falling edges are used. The firmware measures the pulse width between edges to determine whether the received bit represents a logical zero or one. The interval between rising edges is also used to detect the missing pulse that marks the beginning of a new DCF77 minute frame.
+
+For the RTK PPS signal, the rising edge is used as the second-generation event after the software clock has been initialized. When a valid PPS event is detected, the firmware increments the software real-time clock by one second and prepares a diagnostic message for later UART transmission.
+
+This implementation should be distinguished from timer input-capture mode. In timer input capture, the timer register stores the timestamp directly in hardware at the moment of the edge. In the final prototype, EXTI-based edge detection was used instead, which was sufficient for millisecond-level validation. Future hardware or firmware revisions should use timer input capture for more precise PPS timestamping.
+
+\subsection{UART Diagnostic Communication}
+
+UART communication is used as the main diagnostic output interface of the synchronization module. During final validation, the STM32 transmitted formatted synchronization messages through UART, and the signal was converted to USB using an external CP2102 USB-UART bridge.
+
+The UART output contains the current software-clock time, date, PCB identifier, synchronization state, last valid DCF77 frame, RTK PPS counter, measured PPS period, and RTK difference value. This information allows the ROS2 evaluation pipeline to monitor synchronization behavior and store measurement data for later analysis.
+
+In the final firmware, UART is not used to discipline the software clock. It is also not used for full GNSS navigation-message parsing or RTK correction processing. The RTK receiver contributes to the synchronization system through its PPS output, while UART is used only to export diagnostic information from the STM32.
+
+This separation keeps the timing path independent from serial communication latency. DCF77 and RTK PPS signals define the local clock behavior, while UART provides visibility into the internal synchronization state.
+
+\subsection{Connector Mirroring Strategy}
+
+The hardware design includes mirrored RTK-related connector signals to make the prototype easier to integrate into a larger experimental setup. The connector routing is shown in Fig.~\ref{fig:timingInterfaces}. The purpose of this strategy is to allow selected RTK-related signals, including the PPS line, to remain accessible while the synchronization board is inserted into the signal path.
+
+This approach improves flexibility during testing because the synchronization PCB can observe or use the PPS signal without preventing other external modules from accessing the same connector interface. It also simplifies debugging, since the relevant timing and communication lines can be probed at the board connectors.
+
+In the final implementation, the most important signal from this interface is the RTK PPS output. The STM32 firmware does not process full RTK correction data or decode GNSS navigation messages. Therefore, the connector mirroring should be understood mainly as a practical hardware-integration feature rather than as a complete RTK communication subsystem.
+
+This strategy supports modularity of the prototype and leaves space for future extensions, such as routing additional GNSS or RTK diagnostic signals to the microcontroller or companion-computer system.
+
+\subsection{Design Considerations for Timing Accuracy}
+
+The timing accuracy of the prototype depends on the complete signal path from the external timing source to the STM32 firmware. Important design considerations include clean signal routing, stable input logic levels, short trace lengths, proper grounding, and separation of timing signals from noisy digital or power traces.
+
+For the DCF77 input, reliable pulse-width measurement is more important than microsecond precision. The firmware distinguishes logical values by measuring pulse widths of approximately 100 ms and 200 ms. Therefore, millisecond-level timer resolution is sufficient for DCF77 decoding, provided that the signal edges are stable and noise does not create false transitions.
+
+For the RTK PPS input, the rising edge is used as the stable one-second event for software-clock generation. The PPS trace should therefore be routed directly and kept away from sources of noise. A clean PPS edge improves repeatability of interrupt detection and reduces the risk of false or missed PPS events.
+
+The final prototype validates timing behavior at millisecond-level resolution using firmware diagnostics and ROS2 logs. Therefore, the design objective is stable PPS-driven second generation and elimination of observable long-term drift, not direct proof of sub-microsecond synchronization accuracy. For future higher-precision validation, the PPS signal should be measured using timer input capture or an external timing instrument.
+
+\section{Power Supply Design}
+
+The synchronization module is powered from a USB-C connector that provides a 5 V input supply during development and laboratory testing. The input voltage is converted to a regulated 3.3 V rail used by the STM32 microcontroller and onboard digital circuitry. The power-entry and regulator schematic is shown in Fig.~\ref{fig:usbPowerRegulator}.
+
+A stable supply voltage is important for reliable microcontroller operation, UART communication, and timing-signal processing. Supply-voltage disturbances can influence digital input thresholds, oscillator behavior, and general firmware stability. Therefore, the design includes local decoupling capacitors near the microcontroller supply pins and regulator capacitors close to the voltage regulator.
+
+The prototype uses a simple linear regulator architecture based on the AMS1117-3.3. This choice is suitable for laboratory validation because it is easy to implement, widely available, and provides a stable 3.3 V rail with low design complexity. However, the linear regulator is not the most power-efficient option for battery-powered UAV deployment.
+
+The power supply design therefore supports the main goal of the prototype: stable operation during firmware development, DCF77 and RTK PPS signal processing, and UART/ROS2-based evaluation. Future hardware revisions could replace the regulator with a more efficient low-quiescent-current LDO or switching regulator optimized for UAV power constraints.
+
+\subsection{Voltage Regulation}
+
+The prototype uses an AMS1117-3.3 linear voltage regulator \cite{ams1117Datasheet} to convert the 5 V USB-C input voltage to the 3.3 V rail required by the STM32 microcontroller and onboard logic circuitry. The regulator circuit is shown in Fig.~\ref{fig:usbPowerRegulator}.
+
+The regulator is implemented with input and output capacitors according to the typical application requirements of the device. These capacitors help stabilize the regulator and reduce voltage ripple on the 3.3 V rail. Additional local decoupling capacitors are placed close to the STM32 supply pins to suppress fast current transients generated by digital switching.
+
+The 3.3 V rail supplies the microcontroller core and the logic-level signal interfaces used for DCF77, RTK PPS, and UART communication. Stable voltage regulation is important because supply noise can affect digital input thresholds, oscillator stability, and communication reliability.
+
+The AMS1117-3.3 was sufficient for laboratory testing and prototype validation. However, because it is a linear regulator, the voltage difference between input and output is dissipated as heat. For future UAV deployment, a more efficient low-quiescent-current LDO or switching regulator should be considered.
+
+\subsection{Design Justification}
+
+The AMS1117-3.3 regulator was selected because it provides a simple and reliable way to generate the 3.3 V rail required by the STM32 microcontroller and logic circuitry \cite{ams1117Datasheet}. For a laboratory prototype powered from USB-C, this solution offers low design complexity, wide component availability, and sufficient current capability.
+
+A linear regulator was also suitable during development because it avoids the switching ripple produced by DC-DC converters. This simplified the first hardware revision and reduced the number of possible noise sources during debugging of DCF77 reception, RTK PPS detection, and UART communication.
+
+The design priority of the prototype was stable operation and easy validation rather than maximum power efficiency. The board was mainly tested in a laboratory environment with USB power, where regulator efficiency was less critical than predictable behavior and simple implementation.
+
+For future UAV deployment, the regulator choice should be reconsidered. A modern low-quiescent-current LDO or efficient switching regulator would reduce power loss and heating, especially when the module is powered from a battery-operated UAV platform.
+
+\subsection{Limitations and Future Improvement}
+
+The main limitation of the AMS1117-3.3 regulator is its linear operating principle. The voltage difference between the 5 V USB-C input and the 3.3 V output is dissipated as heat. The power loss can be estimated as
+\begin{equation}
+P_{loss} = (V_{in} - V_{out}) \cdot I_{load}.
+\end{equation}
+For example, with $V_{in}=5~\mathrm{V}$, $V_{out}=3.3~\mathrm{V}$, and $I_{load}=150~\mathrm{mA}$, the regulator dissipates approximately
+\begin{equation}
+P_{loss} = (5 - 3.3) \cdot 0.15 = 0.255~\mathrm{W}.
+\end{equation}
+This power loss is acceptable for laboratory validation powered from USB-C, but it is not ideal for battery-powered UAV operation. In a UAV platform, unnecessary power dissipation reduces efficiency and may increase the thermal load inside the electronics bay.
+
+Another limitation is the dropout voltage and quiescent current of the regulator \cite{ams1117Datasheet}. These parameters make the AMS1117 less suitable for low-power embedded systems compared with modern low-dropout regulators or switching converters.
+
+Future hardware revisions should therefore consider replacing the AMS1117 with a regulator optimized for UAV deployment. A low-quiescent-current LDO would keep the design simple while improving efficiency, while a switching regulator would provide better power efficiency when higher load currents are required.
+
+\subsection{Power Integrity Considerations}
+
+Power integrity is important for reliable operation of the synchronization module. Supply-voltage noise can influence the STM32 oscillator, digital input thresholds, UART communication reliability, and the stability of external timing-signal detection \cite{kopetz2011realtime}.
+
+The PCB design therefore includes local decoupling capacitors placed close to the STM32 supply pins. These capacitors provide short-term current during fast switching events and reduce high-frequency voltage disturbances on the 3.3 V rail. The regulator input and output capacitors also help stabilize the AMS1117-3.3 voltage regulator \cite{ams1117Datasheet}.
+
+The ground and power routing should provide low-impedance return paths for digital currents. This is especially important near the DCF77 and RTK PPS inputs, where noise on the ground reference or supply rail can influence edge detection. Keeping timing-signal traces short and referenced to a stable ground plane helps reduce susceptibility to electromagnetic interference.
+
+In the implemented prototype, the power architecture was sufficient for laboratory validation, DCF77 decoding, RTK PPS interrupt processing, and UART/ROS2 logging. More detailed power-integrity testing under UAV motor, ESC, and vibration conditions remains future work.
+
+\section{PCB Layout and Grounding Strategy}
+
+The PCB layout was designed to support reliable operation of the STM32 synchronization prototype and to preserve the integrity of the external timing signals. The board layout is shown in Fig.~\ref{fig:pcbLayout}, and the 3D render of the assembled PCB is shown in Fig.~\ref{fig:pcb3d}.
+
+The layout separates the main functional areas of the board: USB-C power input, 3.3 V regulation, STM32 microcontroller core, SWD programming interface, DCF77 input, RTK PPS interface, and UART-related routing. This organization makes the board easier to debug and reduces unnecessary coupling between power, communication, and timing-signal paths.
+
+A stable ground reference is important for reliable edge detection on DCF77 and RTK PPS inputs. Noise on the ground reference can shift input thresholds and cause false or unstable signal detection. For this reason, the layout uses short routing for timing signals, local decoupling near the MCU, and a grounding strategy intended to provide low-impedance return paths.
+
+The PCB layout was sufficient for laboratory validation of DCF77 decoding, RTK PPS-driven second generation, and UART/ROS2 communication. Further layout optimization could be performed in future revisions, especially if the board is integrated into a UAV platform with stronger electromagnetic noise from motors, ESCs, and power electronics.
+
+The PCB layout was prepared in Altium Designer \cite{altiumDesignerDocs} and was designed to support reliable operation of the STM32 synchronization prototype.
+
+\subsection{Layer Stack Configuration}
+
+The synchronization PCB was designed as a four-layer board. This stack configuration improves routing flexibility, provides a stable reference plane, and helps reduce electromagnetic interference compared with a simple two-layer layout. The PCB layout is shown in Fig.~\ref{fig:pcbLayout}.
+\\
+The layer stack is organized as follows:
+\begin{itemize}
+    \item top layer for component placement and signal routing,
+    \item inner ground layer for a continuous low-impedance reference plane,
+    \item inner power layer for 3.3 V distribution,
+    \item bottom layer for additional signal routing.
+\end{itemize}
+
+The continuous ground plane is especially important for timing-signal integrity. It provides a defined return path for digital signals and reduces loop areas that could increase noise coupling. This is relevant for the DCF77 and RTK PPS inputs, where clean edge detection is required for reliable firmware operation.
+
+The four-layer structure also improves mechanical rigidity and simplifies routing around the STM32 microcontroller, USB-C power input, SWD connector, and timing-signal interfaces. For the laboratory prototype, this stack-up provided sufficient signal integrity and robustness for DCF77 decoding, RTK PPS processing, and UART diagnostic communication.
+
+\subsection{Ground Plane Strategy}
+
+A continuous ground plane is used as the main voltage reference for the synchronization PCB. This ground plane provides low-impedance return paths for digital signals and helps reduce ground bounce, electromagnetic interference, and unwanted coupling between different functional parts of the board.
+
+The ground plane is especially important for the DCF77 and RTK PPS timing inputs. These signals are interpreted by the STM32 as digital edges, so noise on the reference ground can shift the effective input threshold and cause unstable or false edge detection. Keeping the timing traces close to a stable ground reference improves signal integrity and repeatability.
+
+The layout avoids unnecessary interruptions in the ground plane below timing-sensitive traces. This helps maintain a predictable return-current path and reduces loop area. Local decoupling capacitors near the STM32 supply pins also connect to the ground plane with short paths, improving high-frequency current return and supply stability.
+
+In the implemented prototype, the grounding strategy supported stable laboratory operation of the DCF77 decoder, RTK PPS interrupt input, and UART diagnostic communication. More detailed electromagnetic compatibility testing in a UAV environment remains future work.
+
+\subsection{Component Placement Philosophy}
+
+Component placement was organized according to the functional blocks of the synchronization module. The main goal was to keep timing-signal paths short, make debugging accessible, and separate power-entry circuitry from sensitive microcontroller inputs.
+
+The USB-C connector and voltage regulator were placed near the board edge to simplify power entry and reduce unnecessary routing of the 5 V input. The STM32 microcontroller was placed centrally so that connections to the SWD interface, DCF77 input, RTK PPS input, UART lines, reset circuit, and decoupling capacitors could remain short and direct.
+
+Decoupling capacitors were placed close to the STM32 supply pins to reduce local supply-voltage disturbances. The reset button, BOOT0 configuration, and SWD connector were positioned to allow convenient access during firmware flashing and debugging.
+
+The DCF77 and RTK PPS connector signals were routed with attention to timing reliability. Their traces were kept as short and simple as possible, avoiding unnecessary vias and routing near noisy power paths. This placement strategy supports stable edge detection and reduces the probability of noise-induced timing errors.
+
+Overall, the component placement reflects the prototype goals: reliable laboratory operation, accessible debugging, clean timing-signal routing, and practical integration with UART/ROS2-based evaluation.
+
+\subsection{Power Plane Design}
+
+The power plane distributes the regulated 3.3 V rail to the STM32 microcontroller and onboard logic circuitry. Using an internal power layer reduces routing impedance and provides a cleaner supply distribution compared with long narrow traces on the signal layers.
+
+The 3.3 V rail is generated by the AMS1117-3.3 regulator from the USB-C 5 V input, as shown in Fig.~\ref{fig:usbPowerRegulator}. From the regulator output, the supply is distributed to the microcontroller core, timing-signal interface circuitry, and UART-related logic paths.
+
+Local decoupling capacitors are placed close to the STM32 supply pins to provide short current loops for fast transient currents. This helps reduce voltage ripple and prevents digital switching activity from disturbing the local MCU supply.
+
+A stable power plane also supports timing reliability. Supply noise can influence oscillator behavior and GPIO input thresholds, which may affect DCF77 edge detection and RTK PPS interrupt processing. The power plane design therefore contributes to stable firmware execution and reliable synchronization-signal processing during laboratory validation.
+
+\subsection{High-Speed and Timing Trace Considerations}
+
+Although the DCF77 and RTK PPS signals have low repetition rates, their digital edges can still contain high-frequency components. Poor routing of these signals can cause ringing, noise coupling, or unstable threshold crossing at the STM32 input pin.
+
+The RTK PPS trace was routed as directly as possible between the connector and the STM32 input. This reduces propagation delay, minimizes noise pickup, and improves repeatability of rising-edge detection. The DCF77 input was also routed with attention to edge stability, because the firmware relies on pulse-width measurements to distinguish logical zero and one values.
+
+Timing traces were kept away from noisy power paths and unnecessary switching signals where possible. They were also routed over a stable ground reference to provide a predictable return path and reduce susceptibility to electromagnetic interference.
+
+UART and USB-related traces are less critical for synchronization because they are used only for communication and diagnostics. However, they still require clean routing to maintain reliable data transfer to the ROS2 logging environment. In the final prototype, UART through the CP2102 USB-UART bridge provided the stable communication path used for validation.
+
+These routing considerations support the main hardware goal of the board: reliable detection of DCF77 and RTK PPS timing events while keeping diagnostic communication separate from the synchronization path.
+
+\subsection{Thermal and Mechanical Stability}
+
+Thermal and mechanical stability affect both reliability and timing behavior of the synchronization module. Temperature changes can influence oscillator frequency, regulator behavior, and digital input thresholds, while mechanical vibration can affect connectors, solder joints, and external wiring \cite{allan1966statistics,levine2012atomic}.
+
+The PCB was designed with a compact four-layer structure, which improves mechanical rigidity compared with a simple two-layer prototype. Stable mechanical construction is useful for maintaining reliable connections to the DCF77 receiver, RTK PPS source, SWD programmer, and UART diagnostic interface.
+
+Thermal effects are also relevant for the voltage regulator. The AMS1117-3.3 dissipates power as heat, depending on input voltage, output voltage, and load current \cite{ams1117Datasheet}. During laboratory testing, this was acceptable, but future UAV deployment may require a more efficient regulator to reduce thermal load.
+
+In the implemented prototype, thermal and mechanical behavior was sufficient for laboratory validation of DCF77 decoding, RTK PPS-driven second generation, and UART/ROS2 logging. Extended testing under UAV vibration, airflow, and temperature variation remains future work.
+
+\section{Signal Integrity and Timing Preservation}
+
+Signal integrity is important for reliable processing of the external timing references. The synchronization module depends on correct detection of DCF77 signal edges and RTK PPS rising edges. Noise, ringing, unstable thresholds, or poor grounding can create false transitions or missed events, which would affect DCF77 decoding or PPS-driven clock generation.
+
+In the implemented prototype, the timing signals are digital inputs connected to STM32 external interrupt-capable pins. The DCF77 signal is used for pulse-width decoding and minute-frame detection, while the RTK PPS signal is used as the stable one-second event after synchronization. Therefore, preserving clean signal transitions is more important than high data throughput.
+
+The PCB layout supports timing preservation through short signal paths, a stable ground reference, local decoupling, and separation between timing traces and noisy power or communication routes. These design choices reduce the probability of noise-induced timing errors and improve repeatability of edge detection.
+
+The final evaluation was performed using firmware diagnostics, UART transmission, ROS2 logging, and Python analysis. This method verifies stable PPS-driven operation at millisecond-level measurement resolution. It does not directly measure sub-microsecond signal integrity or timestamp accuracy. More precise characterization would require timer input capture, oscilloscope measurements, or a dedicated timing analyzer.
+
+\subsection{Edge Integrity of the PPS Signal}
+
+The RTK PPS signal is used as the stable one-second event for the STM32 software clock after valid DCF77 synchronization. Therefore, reliable detection of the PPS rising edge is important for stable clock generation.
+
+A PPS signal has a low repetition frequency of 1 Hz, but its rising edge can still be electrically fast. If the edge is affected by ringing, overshoot, undershoot, noise, or slow transition time, the effective threshold-crossing moment at the STM32 input can become less repeatable. In extreme cases, noise can also cause false or missed interrupt events.
+
+The PCB design reduces these risks by routing the PPS trace directly from the connector to the STM32 input, keeping the trace short, and referencing it to a stable ground plane. A series resistor in the signal path helps damp fast-edge ringing and reduces current transients during switching.
+
+In the final firmware, the PPS input is processed using rising-edge interrupt detection. The system validates PPS timing by checking whether the measured interval is close to one second before accepting it as a valid clock increment. This improves robustness against occasional false pulses or missing edges.
+
+The implemented design was sufficient for stable PPS-driven second generation at millisecond-level evaluation resolution. More precise verification of PPS edge integrity would require oscilloscope measurements or timer input-capture-based timestamping.
+
+\subsection{Timer Resolution Limitation}
+
+Timer resolution defines the smallest time interval that can be directly represented by the microcontroller timing counter. If the timer counting frequency is $f_{timer}$, the timer resolution is
+\begin{equation}
+\Delta t = \frac{1}{f_{timer}}.
+\end{equation}
+In the final firmware configuration, TIM2 is driven from the 8 MHz internal HSI clock with a prescaler value of $8000 - 1$. This gives an effective timer frequency of
+\begin{equation}
+f_{TIM2} = \frac{8\,000\,000}{8000} = 1000~\mathrm{Hz},
+\end{equation}
+and therefore a timer resolution of
+\begin{equation}
+\Delta t_{TIM2} = 1~\mathrm{ms}.
+\end{equation}
+This resolution is sufficient for DCF77 pulse-width decoding because the signal represents logical values using pulse durations of approximately 100 ms and 200 ms. A 1 ms timing step is also sufficient for observing RTK PPS period stability and software-clock behavior in the implemented diagnostic system.
+
+However, the 1 ms timer resolution is not sufficient to directly prove microsecond-level or sub-microsecond synchronization accuracy. The final evaluation can only confirm synchronization behavior at the available millisecond-level measurement resolution. Future versions should use a faster timer configuration, timer input capture, or an external timing instrument if microsecond-level characterization is required.
+
+\subsection{Interrupt Latency Considerations}
+
+Interrupt latency is the delay between the physical signal edge at the microcontroller input and the execution of the corresponding interrupt service routine. In the implemented synchronization module, this is relevant for both DCF77 edge processing and RTK PPS rising-edge detection.
+
+The DCF77 signal uses interrupt-based edge detection to measure pulse widths and rising-edge intervals. Small interrupt delays are acceptable because DCF77 logical values are separated by relatively large pulse-width differences, approximately 100 ms for logical zero and 200 ms for logical one. Therefore, millisecond-level timing is sufficient for reliable decoding under good signal conditions.
+
+The RTK PPS input is more timing-sensitive because the PPS rising edge defines the one-second event used to increment the software clock. In the final firmware, the interrupt routine performs only the necessary timing update and flag setting, while UART transmission and diagnostic formatting are handled outside the interrupt path. This reduces the risk that communication activity increases PPS handling jitter.
+
+Because the final prototype uses EXTI-based interrupt detection rather than hardware timer input capture, interrupt latency remains part of the implementation uncertainty. This is acceptable for the millisecond-level validation performed in this thesis, but it limits the ability to prove microsecond-level timing behavior. Future revisions should use timer input capture so that the hardware stores the PPS timestamp independently of interrupt execution latency.
+
+\subsection{Jitter Sources}
+
+Jitter represents the variation of timing events from their expected positions. In the synchronization module, jitter can appear in the external timing signals, in the PCB signal path, in the STM32 interrupt response, and in the UART/ROS2 measurement pipeline.
+\\
+The main jitter sources are:
+\begin{itemize}
+    \item instability or noise on the DCF77 receiver output,
+    \item variation of the RTK PPS edge detection time,
+    \item GPIO input threshold uncertainty,
+    \item supply-voltage and ground noise,
+    \item interrupt latency variation inside the STM32 firmware,
+    \item UART buffering and operating-system scheduling on the companion-computer side,
+    \item ROS2 message processing and CSV logging delay.
+\end{itemize}
+
+For the implemented system, it is important to distinguish between synchronization jitter and measurement jitter. DCF77 and RTK PPS events influence the local STM32 software clock, while UART and ROS2 only observe and log the generated diagnostic messages. Therefore, jitter in ROS2 message arrival time does not directly mean that the STM32 clock itself is drifting.
+
+The final measurements showed stable PPS-driven second generation with no observable RTK difference at millisecond-level resolution. However, because the evaluation used UART diagnostics and ROS2 logs, the measured jitter mainly describes the implemented observation pipeline rather than true hardware-level PPS timing uncertainty.
+
+A more precise jitter analysis would require direct hardware timestamping, timer input capture, or an external measurement instrument such as an oscilloscope or timing analyzer.
+
+\subsection{Preservation Through Hardware Architecture}
+
+The hardware architecture preserves timing reliability by keeping the synchronization path simple and separated from communication tasks. The DCF77 and RTK PPS signals are routed directly to STM32 interrupt-capable inputs, while UART communication is used only for diagnostics and ROS2-based evaluation.
+\\
+Several design choices support reliable timing-signal processing:
+\begin{itemize}
+    \item short routing of DCF77 and RTK PPS signal traces,
+    \item stable ground reference below timing-sensitive paths,
+    \item local decoupling near the STM32 supply pins,
+    \item series resistance on selected signal lines to reduce ringing,
+    \item separation between timing inputs and non-time-critical communication paths,
+    \item SWD access for debugging without modifying the synchronization path.
+\end{itemize}
+
+This architecture reduces the probability that communication latency, power-supply disturbances, or PCB routing artifacts influence the local software clock. The final implementation uses DCF77 for absolute time acquisition and RTK PPS for stable second generation, while UART and ROS2 provide only monitoring and logging.
+
+The implemented design was sufficient for laboratory validation of stable PPS-driven clock operation at millisecond-level measurement resolution. Future hardware revisions could further improve timing preservation by using timer input capture for PPS timestamping, improved power regulation, and direct measurement of signal integrity with external instruments.
+
+\section{Design Trade-offs}
+
+Several practical trade-offs were made during the development of the synchronization prototype. The STM32F042F6P6 microcontroller was selected instead of a higher-performance MCU because it provides the required interrupt, timer, UART, and debugging peripherals in a compact and low-complexity package. This was sufficient for DCF77 decoding, RTK PPS event processing, and UART diagnostic output.
+
+Native STM32 USB communication was investigated during development, but it was not used in the final validated system because it was unstable on the prototype hardware. UART communication through an external CP2102 USB-UART bridge was therefore selected as the final diagnostic interface. This reduced communication complexity and improved reliability during laboratory validation.
+
+DCF77 was used for absolute calendar-time acquisition, while the RTK receiver was used mainly through its PPS output. This avoided the need to decode complete GNSS time messages in the STM32 firmware and kept the synchronization logic simpler. The trade-off is that the current firmware depends on DCF77 for absolute time and uses RTK PPS only for stable second generation.
+
+The final design therefore favors simplicity, debuggability, and reliable prototype validation over maximum timing resolution or full GNSS time integration. Higher-precision timestamping and direct GNSS time decoding remain future improvements.

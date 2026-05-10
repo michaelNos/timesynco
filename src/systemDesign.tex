@@ -1,0 +1,294 @@
+%!TEX root = ../main.tex
+
+\chapter{System Design\label{chap:systemDesign}}
+
+This chapter describes the overall design of the developed synchronization module. The system is based on a practical separation of timing responsibilities: DCF77 is used to obtain absolute calendar time, while the RTK PPS signal is used to provide a stable one-second reference for the local STM32 software clock.
+
+The chapter defines the main system requirements, explains the hardware architecture, and describes the communication interfaces used for diagnostics and ROS2-based evaluation. The design focuses on deterministic local synchronization using external physical timing signals rather than synchronization through network message arrival time.
+
+The proposed architecture forms the basis for the later hardware implementation, firmware design, and experimental evaluation.
+
+\section{System Requirements}
+
+This section defines the functional and non-functional requirements of the proposed synchronization module. The requirements are derived from the theoretical background in Chapter~2, the intended UAV swarm context, and the practical implementation constraints of the developed STM32-based prototype.
+
+The system shall acquire absolute calendar time from an external time reference, maintain a local software clock on the microcontroller, and use a stable external one-second signal to reduce long-term drift. The design shall also provide a reliable communication path to a companion-computer environment for monitoring, logging, and experimental evaluation.
+
+Because the final prototype is evaluated through UART messages and ROS2 logs, the requirements distinguish between the intended timing architecture and the measurement resolution of the implemented evaluation setup. The system is expected to demonstrate stable PPS-driven second generation and reliable synchronization-state reporting, but the implemented measurement method is not intended to directly prove sub-microsecond synchronization accuracy.
+
+\subsection{Synchronization Accuracy Requirement}
+
+The synchronization system is intended to improve temporal consistency between embedded nodes by reducing long-term drift of the local microcontroller clock. In UAV swarm applications, accurate and consistent timestamps are important for sensor-data correlation, event ordering, and coordination between vehicles \cite{r1,r5,r11}.
+
+From a theoretical point of view, hardware timing references such as GNSS or RTK PPS can support very high timing precision when measured using suitable hardware timestamping methods \cite{teunissen2017springer}. However, the implemented prototype was evaluated using UART diagnostic messages, HAL tick timing, and ROS2 logs. This evaluation path provides millisecond-level observable resolution rather than direct microsecond-level measurement.
+
+Therefore, the practical accuracy requirement for this thesis is defined as stable second-level synchronization with no observable long-term drift at millisecond-level measurement resolution. The main measurable target is
+\begin{equation}
+\left| \varepsilon_\texttt{RTK\_DIFF} \right| = 0~\mathrm{ms}
+\end{equation}
+during synchronized RTK PPS-driven operation, where $\varepsilon_{RTK\_DIFF}$ represents the measured phase difference between the RTK PPS event and the internal software-clock second as reported by the firmware diagnostics.
+
+This requirement does not claim absolute sub-microsecond synchronization accuracy. Instead, it verifies that the final firmware architecture successfully locks the software-clock second generation to the RTK PPS interrupt and eliminates the accumulated drift observed when the internal clock was driven only by the local timer.
+
+\subsection{Deterministic Behavior}
+
+The synchronization mechanism should operate independently of non-deterministic communication delays. In the proposed design, timing is therefore based on external physical signals rather than on the arrival time of UART or ROS2 messages.
+
+The DCF77 signal is used to obtain and validate absolute calendar time. Its pulse widths and minute markers are measured locally by the STM32 firmware using timer-based edge processing. After a valid DCF77 frame initializes the software clock, the RTK PPS signal is used as the deterministic one-second event for clock incrementing.
+
+This design separates time-critical synchronization from non-time-critical communication. UART transmission, ROS2 publishing, and CSV logging are used only for diagnostics and evaluation. They do not directly control the local clock. As a result, the synchronization behavior does not depend on operating-system scheduling, serial buffering, or ROS2 message arrival jitter.
+\\
+The deterministic behavior requirement can therefore be summarized as follows:
+\begin{itemize}
+    \item absolute time shall be obtained from validated DCF77 frames,
+    \item software-clock seconds shall be generated from RTK PPS interrupt events after synchronization,
+    \item communication tasks shall not be used as timing references,
+    \item UART and ROS2 shall be used only for monitoring, logging, and evaluation.
+\end{itemize}
+
+\subsection{Scalability}
+
+The synchronization concept should be scalable to multiple embedded nodes without requiring direct synchronization-message exchange between them. In network-based synchronization, adding more nodes may increase communication load and can make timing behavior more dependent on network delay variation \cite{lopez2021uavmesh}. The proposed design avoids this by using external physical timing references.
+
+In the intended architecture, each synchronization module can independently receive absolute time information from DCF77 and a stable one-second reference from an RTK PPS signal. Therefore, the local clock of each node can be disciplined without relying on a central master node or inter-node timing messages.
+
+In the implemented prototype, scalability was evaluated at the system-concept and logging level rather than through a full UAV swarm deployment. The ROS2 setup supports multiple synchronization streams, and two-board comparison experiments were used to observe logical time differences and message-arrival behavior. These tests demonstrate that the architecture can be extended to multiple nodes, while a larger UAV swarm validation remains future work.
+
+\subsection{Hardware Constraints}
+
+The synchronization module is intended as a compact embedded prototype suitable for future UAV-related experiments. Therefore, the hardware design must remain small, simple, and compatible with typical companion-computer and laboratory testing environments \cite{r2,r7}.
+\\
+The main hardware constraints are:
+\begin{itemize}
+    \item compact PCB layout based on the STM32F042F6P6 microcontroller,
+    \item stable 3.3 V power supply derived from USB-C input power,
+    \item dedicated signal inputs for DCF77 and RTK PPS timing references,
+    \item SWD access for firmware flashing and debugging,
+    \item reliable serial communication path for diagnostics and ROS2 logging.
+\end{itemize}
+
+During development, the native USB interface of the STM32F042 was tested but did not provide stable communication on the prototype hardware. For this reason, the final system uses UART communication through an external CP2102 USB-UART bridge. This choice improved communication reliability while keeping the synchronization path independent from the diagnostic interface.
+
+The hardware constraint is therefore not only miniaturization, but also practical robustness. The board must preserve timing-signal integrity while providing a stable and debuggable communication path for experimental validation.
+
+\subsection{Environmental Robustness}
+
+The synchronization module should operate reliably in environments typical for UAV-related embedded systems. Such environments may include electromagnetic interference from motors and electronic speed controllers, supply-voltage disturbances, mechanical vibration, and temperature variation \cite{kopetz2011realtime,allan1966statistics}.
+
+These effects can influence both timing and communication. Electromagnetic noise may disturb DCF77 reception or digital signal edges, supply variations may affect oscillator stability, and vibration or connector movement may reduce signal reliability. Therefore, the hardware design should use short timing-signal paths, proper grounding, local decoupling, and robust external connections.
+
+In the implemented prototype, environmental robustness was evaluated mainly through laboratory testing and long-term operation of the synchronization and UART/ROS2 logging pipeline. The final system demonstrated stable operation with DCF77 synchronization, RTK PPS-driven second generation, and CP2102-based UART communication. Full UAV flight testing under motor and vibration conditions remains future work.
+
+\subsection{Integration Requirements}
+
+The synchronization module must interface with both timing sources and the companion-computer environment used for evaluation. The timing inputs are separated from the communication output so that synchronization does not depend on message transport latency.
+\\
+The required interfaces are:
+\begin{itemize}
+    \item DCF77 signal input for absolute calendar-time acquisition,
+    \item RTK PPS input for stable one-second clock generation,
+    \item UART output for synchronization diagnostics and status reporting,
+    \item SWD interface for programming and debugging,
+    \item ROS2-based companion-computer pipeline for logging and analysis.
+\end{itemize}
+
+The STM32 firmware must produce a clear diagnostic message containing the current software-clock time, synchronization state, last valid DCF77 frame information, RTK PPS counter, PPS period, and measured RTK difference. These messages are transmitted through UART using the CP2102 USB-UART bridge and then processed by ROS2 nodes.
+
+The integration requirement is therefore focused on reliable data transfer and evaluation rather than on using ROS2 as the synchronization mechanism itself. ROS2 receives and analyzes the synchronization output, while the local clock is disciplined only by DCF77 and RTK PPS timing events.
+
+\subsection{Summary of Requirements}
+
+The proposed synchronization module must satisfy the following key requirements:
+\begin{itemize}
+    \item acquire absolute calendar time from validated DCF77 frames,
+    \item use the RTK PPS signal as the stable one-second reference after synchronization,
+    \item maintain a local STM32 software real-time clock with seconds, minutes, hours, day, month, and year,
+    \item avoid using UART, ROS2, or network message arrival time as the clock synchronization source,
+    \item provide deterministic interrupt-based processing of DCF77 and RTK PPS timing signals,
+    \item transmit synchronization diagnostics through UART for ROS2-based logging and evaluation,
+    \item demonstrate stable PPS-driven operation with no observable long-term drift at millisecond-level measurement resolution,
+    \item remain compact, low-complexity, and suitable for future UAV-related experiments.
+\end{itemize}
+
+These requirements define the practical target of the thesis. The system is designed as a prototype synchronization module that combines DCF77 absolute time acquisition, RTK PPS-based second generation, STM32 firmware processing, and ROS2-based evaluation.
+
+\section{Hardware Architecture}
+
+The synchronization module is designed as a compact STM32-based hardware platform that combines two external timing references. The DCF77 receiver provides absolute calendar-time information, while the RTK PPS signal provides a stable one-second reference used for software-clock generation.
+\\
+The architecture consists of the following functional blocks:
+\begin{itemize}
+    \item DCF77 receiver interface for radio time-signal input,
+    \item RTK PPS input for stable second-boundary detection,
+    \item STM32F042F6P6 microcontroller for decoding, validation, timing logic, and software-clock maintenance,
+    \item 3.3 V power regulation stage supplied from USB-C,
+    \item SWD programming and debugging interface,
+    \item UART diagnostic output connected to the companion computer through a CP2102 USB-UART bridge.
+\end{itemize}
+
+The synchronization path is separated from the communication path. DCF77 and RTK PPS signals are processed locally by the microcontroller, while UART communication is used only to transmit diagnostic messages to the ROS2 evaluation environment. This separation prevents communication latency from directly influencing the local clock.
+
+The hardware architecture therefore supports the main design goal of the thesis: deterministic local time generation from physical timing references with reliable external logging and analysis.
+
+\subsection{Signal Flow}
+
+The system signal flow is divided into synchronization inputs and diagnostic output. The synchronization inputs are processed locally by the STM32 microcontroller, while diagnostic messages are transmitted to the companion-computer environment for logging and evaluation.
+
+The DCF77 receiver provides a pulse signal containing encoded time information. The STM32 measures the pulse widths and rising-edge intervals using external interrupts and TIM2 timing. A complete DCF77 minute frame is collected, decoded, and validated using parity checks. After a valid frame is received, the software real-time clock is initialized with absolute calendar time \cite{ptbDcf77}.
+
+The RTK receiver provides a PPS signal. After DCF77 synchronization is valid, each accepted RTK PPS event is used as the one-second trigger for the software clock. This means that the internal clock seconds are generated from the external PPS event instead of relying only on the free-running STM32 timer.
+
+The diagnostic output is generated by the STM32 firmware and transmitted through UART. The UART signal is converted to USB using a CP2102 USB-UART bridge and read by ROS2 nodes on the companion-computer side. The transmitted messages contain the current time, synchronization state, last valid DCF77 time, RTK PPS counter, PPS period, and RTK difference value.
+
+The resulting signal flow is therefore:
+\begin{equation}
+DCF77 + RTK~PPS \rightarrow STM32~firmware \rightarrow UART/CP2102 \rightarrow ROS2~logging.
+\end{equation}
+
+\subsection{Timing Determinism}
+
+Timing determinism is achieved by processing synchronization events locally on the STM32 microcontroller and by separating these events from communication tasks. The DCF77 and RTK PPS signals are connected directly to external interrupt inputs, so the firmware can react to physical signal edges without depending on UART or ROS2 message timing.
+
+DCF77 processing is based on edge timing. Rising and falling edges are measured using TIM2-based timing, and the resulting pulse widths are used to decode logical values. RTK PPS processing is based on the rising edge of the PPS signal. After the software clock has been initialized from a valid DCF77 frame, accepted RTK PPS events become the timing source for one-second clock increments.
+
+Non-time-critical operations are kept outside the synchronization path. UART message formatting, serial transmission, ROS2 publishing, and CSV logging are used only for diagnostics and evaluation. They do not define when the local clock is incremented. This prevents operating-system scheduling, serial buffering, or ROS2 message-arrival jitter from influencing the clock discipline.
+\\
+The deterministic timing concept can therefore be summarized as:
+\begin{itemize}
+    \item physical timing signals are processed directly by STM32 interrupt logic,
+    \item DCF77 is used for absolute-time decoding and validation,
+    \item RTK PPS is used for stable second generation after synchronization,
+    \item UART and ROS2 are separated from the actual timing source.
+\end{itemize}
+
+\subsection{Power Architecture Considerations}
+
+The synchronization module is powered from a USB-C input, which provides a 5 V supply during development and laboratory testing. This voltage is converted to a regulated 3.3 V rail used by the STM32 microcontroller and onboard logic circuitry.
+
+A stable 3.3 V supply is important because supply-voltage disturbances can affect digital input thresholds, oscillator behavior, and communication reliability. For this reason, local decoupling capacitors are placed close to the microcontroller supply pins, and the PCB layout is designed to keep power and ground paths short and low impedance.
+
+The prototype uses a simple linear voltage regulator architecture. This solution is suitable for laboratory validation because it has low implementation complexity and avoids switching-regulator ripple. However, for future UAV deployment, a more efficient low-quiescent-current regulator or switching converter may be considered to reduce power loss and improve battery-powered operation.
+
+The power architecture therefore supports the prototype goal: stable laboratory operation, reliable STM32 firmware execution, and clean enough supply conditions for DCF77, RTK PPS, and UART-based validation.
+
+\section{Communication Interfaces}
+
+The synchronization module uses separate interfaces for timing inputs, debugging, and diagnostic communication. This separation is important because synchronization events must not depend on communication latency or operating-system scheduling.
+
+The DCF77 and RTK PPS lines are treated as timing inputs. They are connected directly to STM32 external interrupt-capable pins and are processed locally by the firmware. These signals are not used as data communication channels; instead, they provide physical timing events for time decoding and software-clock generation.
+
+Diagnostic communication is implemented through UART. The STM32 transmits formatted synchronization messages containing the current software-clock time, synchronization state, last valid DCF77 frame, RTK PPS counter, PPS period, and RTK difference. During final validation, this UART output was connected to the companion-computer environment using a CP2102 USB-UART bridge.
+
+On the computer side, ROS2 nodes read the serial data, publish it to ROS2 topics, and store it in CSV files for later analysis. Therefore, UART and ROS2 provide monitoring and evaluation functionality, while DCF77 and RTK PPS remain responsible for actual synchronization.
+
+\subsection{RTK PPS Interface}
+
+The RTK receiver interface is used primarily as a source of the PPS timing signal. The PPS output provides one pulse per second and is connected to an STM32 external interrupt input. After the software clock has been initialized from a valid DCF77 frame, this PPS event is used as the stable one-second trigger for software-clock incrementing.
+
+In the final implementation, the STM32 firmware does not decode full GNSS navigation messages or process RTK correction data. The RTK receiver is therefore not used as a complete GNSS communication source inside the microcontroller. Its role in the synchronization pipeline is limited to providing a stable physical timing reference.
+
+This separation simplifies the firmware design. DCF77 provides absolute calendar time, while RTK PPS provides stable second generation. Any diagnostic information about PPS behavior, such as PPS counter, measured PPS period, and RTK difference, is generated by the STM32 firmware and transmitted to the ROS2 environment through UART.
+
+\subsection{Companion Computer Interface}
+
+The synchronization module communicates with the companion-computer environment through a UART diagnostic interface. During final validation, the STM32 UART output was connected to the computer using a CP2102 USB-UART bridge. This interface was selected because it provided stable communication after native STM32 USB communication proved unreliable on the prototype hardware.
+
+The transmitted UART messages contain synchronization and diagnostic information in a human-readable format. A typical message includes the current software-clock time, date, PCB identifier, synchronization state, last valid DCF77 frame, RTK PPS counter, measured PPS period, and RTK difference value.
+
+On the companion-computer side, ROS2 nodes read the serial stream, publish the received data to ROS2 topics, and store the measurements in CSV log files. These logs are then processed by Python analysis scripts to evaluate synchronization stability and timing behavior.
+
+The companion computer does not directly control the STM32 clock. It is used only for monitoring, logging, and post-processing. The local software clock is disciplined by DCF77 and RTK PPS timing events inside the STM32 firmware.
+
+\subsection{Separation of Time-Critical and Non-Critical Tasks}
+
+A key design requirement is the separation of time-critical synchronization events from non-time-critical communication and logging tasks. The DCF77 and RTK PPS signals directly influence the local software clock and therefore must be processed with minimal delay and predictable firmware behavior.
+
+Time-critical tasks include detecting DCF77 signal edges, measuring DCF77 pulse widths, detecting the DCF77 minute marker, validating the decoded frame, and processing RTK PPS events. After the first valid DCF77 synchronization, the RTK PPS interrupt becomes the event that increments the software clock by one second.
+
+Non-time-critical tasks include formatting diagnostic messages, transmitting UART data, publishing ROS2 topics, writing CSV log files, and running Python analysis scripts. These operations are useful for evaluation, but they must not define the actual timing of the local clock.
+
+The implemented firmware follows this separation by keeping interrupt processing focused on signal detection, timing updates, and flag setting. UART transmission is performed later in the main loop when a pending output flag is set. This reduces the risk that serial communication or ROS2 logging affects synchronization behavior.
+\\
+This separation can be expressed conceptually as
+\begin{equation}
+t_{sync} \perp t_{comm},
+\end{equation}
+where $t_{sync}$ represents the timing of local synchronization events and $t_{comm}$ represents communication and logging timing. In the implemented system, $t_{sync}$ is determined by DCF77 and RTK PPS events, while $t_{comm}$ is determined by UART, operating-system scheduling, and ROS2 processing.
+
+\subsection{Scalability Considerations}
+
+The proposed architecture is designed so that synchronization does not require direct time-message exchange between UAV nodes. Each module processes its own external timing inputs locally. This reduces dependence on network traffic and avoids increasing synchronization-related communication load as the number of nodes grows.
+
+In the implemented prototype, DCF77 provides absolute calendar-time information and RTK PPS provides the stable one-second event for the STM32 software clock. In a larger system, each node could use the same principle: local decoding of an absolute time reference and local PPS-driven second generation.
+
+The ROS2 evaluation pipeline also supports scalability at the logging level. Multiple serial nodes can publish synchronization messages from different boards to separate ROS2 topics, and a comparison node can evaluate differences between the received streams. This was used for two-board comparison experiments.
+
+However, full scalability in a real UAV swarm was not experimentally validated in this thesis. The results should therefore be understood as a prototype-level demonstration of a scalable architecture, with larger multi-UAV deployment left for future work.
+
+\section{Time Distribution Concept}
+
+The time distribution concept defines how the synchronization module creates and exports local time information. In the implemented system, absolute calendar time and stable second generation are provided by two different external references.
+
+DCF77 is used to acquire absolute date and time. The STM32 firmware decodes the received DCF77 frame, validates its parity bits, checks whether the decoded values are plausible, and then initializes the software real-time clock. This provides the calendar-time basis of the system.
+
+After the software clock has been initialized, the RTK PPS signal is used as the stable one-second reference. Each accepted PPS event increments the software clock by one second. This prevents the software clock from relying only on the free-running STM32 timer and reduces long-term drift.
+
+The synchronized time is then exported through UART diagnostic messages. These messages are read by ROS2 nodes on the companion-computer side, published to ROS2 topics, and stored in CSV files for later analysis. In this architecture, UART and ROS2 distribute synchronization information for monitoring and evaluation, but they do not control the local clock itself.
+\\
+The concept can be summarized as
+\begin{equation}
+DCF77~time + RTK~PPS \rightarrow STM32~software~clock \rightarrow UART/ROS2~diagnostics.
+\end{equation}
+
+\subsection{Local Time Base Generation}
+
+The local time base is generated inside the STM32 firmware as a software real-time clock. The clock stores seconds, minutes, hours, day, month, and year values. Calendar rollover and leap-year handling are implemented in firmware, so the clock can continue running between external synchronization events.
+
+Before a valid external time frame is received, the firmware can use the local timer as a fallback timing source. However, this free-running mode is not treated as long-term accurate because the STM32 oscillator can drift over time. Therefore, the local timer is used mainly for signal measurement, fallback operation, and diagnostics.
+
+The first valid DCF77 frame initializes the software clock with absolute calendar time. The firmware accepts the frame only after pulse decoding, parity validation, and plausibility checks. This prevents invalid radio frames from corrupting the local time base \cite{ptbDcf77}.
+\\
+After the software clock is initialized, the RTK PPS input becomes the main second-generation source. Each accepted PPS interrupt increments the software clock by one second. The local time update can be described conceptually as
+\begin{equation}
+T_{local}(k+1) = T_{local}(k) + 1~\mathrm{s},
+\end{equation}
+where $k$ denotes the accepted RTK PPS event index. This design keeps the software clock aligned to the external PPS rhythm and prevents long-term drift caused by the free-running internal timer.
+
+The resulting local time base is therefore created by combining DCF77 absolute time initialization with RTK PPS-driven second increments.
+
+\subsection{Timestamp Generation}
+
+Timestamp generation in the implemented prototype is based on the STM32 software real-time clock. After successful DCF77 synchronization, the software clock contains absolute calendar time. After RTK PPS operation begins, the seconds of this clock are advanced by PPS interrupt events rather than only by the local timer.
+
+The firmware periodically formats the current software-clock value into a diagnostic message. The message contains the current time and date, PCB identifier, synchronization state, last valid DCF77 frame, RTK PPS counter, measured PPS period, and RTK difference value. A typical transmitted message has the following structure:
+\begin{verbatim}
+HH:MM:SS - DD.MM.20YY - PCB_01 - SYNC=1 - LASTDCF=DD.MM.20YY_HH:MM
+- RTK_PPS=N - RTK_DELTA=1000ms - RTK_DIFF=0ms
+\end{verbatim}
+These messages act as timestamped synchronization diagnostics for the ROS2 evaluation pipeline. The timestamp is generated on the STM32 side from the local software clock, while ROS2 additionally records message arrival time for logging and comparison.
+
+It is important to distinguish between these two time values. The STM32 timestamp represents the synchronized software-clock state, while the ROS2 arrival timestamp represents when the message was received by the computer. Because ROS2 arrival time is affected by UART buffering, operating-system scheduling, and middleware processing, it is used only for evaluation and not as the synchronization reference.
+
+\subsection{Distribution to UAV System}
+
+In the implemented prototype, synchronized time information is distributed to the companion-computer environment through UART diagnostic messages. The STM32 generates the synchronization message locally and transmits it through the CP2102 USB-UART bridge. On the computer side, a ROS2 serial node reads the message, publishes it to a ROS2 topic, and stores it in a CSV log file.
+
+This distribution method allows the synchronization state of the embedded module to be observed from the ROS2 environment. It also enables later analysis of DCF77 synchronization status, RTK PPS period stability, RTK difference values, and message arrival timing.
+
+The distributed information is intended primarily for monitoring and evaluation. The ROS2 system receives the synchronized time reported by the STM32, but it does not discipline the STM32 clock. In a future UAV integration, the same interface could be extended so that sensor drivers or higher-level software components use the STM32-provided time for timestamp alignment.
+
+Therefore, the implemented distribution concept should be understood as a ROS2-based evaluation interface for a synchronization module, with direct use by UAV control and perception subsystems left as future work.
+
+\subsection{Global Consistency Across Swarm}
+
+The proposed architecture is intended to support global consistency by allowing multiple synchronization modules to use external timing references instead of exchanging synchronization messages through a network. In principle, if several nodes obtain the same absolute time reference and use stable PPS-based second generation, their local software clocks can remain comparable without relying on inter-node communication.
+
+In the implemented system, DCF77 provides absolute calendar time and RTK PPS provides the stable one-second event for the STM32 software clock. For a multi-node setup, each board can independently follow the same synchronization principle. This reduces dependence on wireless communication latency and supports scalable timing architecture.
+\\
+The practical inter-node timing difference can be conceptually described as
+\begin{equation}
+\varepsilon_{swarm} \approx \varepsilon_{timeRef} + \varepsilon_{pps} + \varepsilon_{firmware} + \varepsilon_{measurement},
+\end{equation}
+where $\varepsilon_{timeRef}$ represents uncertainty of the absolute time reference, $\varepsilon_{pps}$ represents PPS timing uncertainty, $\varepsilon_{firmware}$ represents embedded processing uncertainty, and $\varepsilon_{measurement}$ represents the resolution and delay of the evaluation method.
+
+In this thesis, global swarm consistency was not validated through a full UAV swarm experiment. Instead, the prototype was evaluated using UART and ROS2 logging, including single-board RTK PPS measurements and two-board comparison experiments. Therefore, the results demonstrate the feasibility of the architecture and stable PPS-driven software-clock behavior, while full swarm-level timing validation remains future work.

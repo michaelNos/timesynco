@@ -1,0 +1,127 @@
+\babel@toc {english}{}\relax 
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Motivation}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Objectives}{1}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Structure of the Thesis}{2}{section.1.3}%
+\contentsline {chapter}{\numberline {2}Theoretical Background}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Time Synchronization Principles}{3}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Clock Model in Distributed Systems}{3}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Oscillator Stability and Drift}{4}{subsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.1.3}Precision and Accuracy}{4}{subsection.2.1.3}%
+\contentsline {subsection}{\numberline {2.1.4}Network-Based Synchronization Methods}{5}{subsection.2.1.4}%
+\contentsline {subsection}{\numberline {2.1.5}Hardware-Assisted Synchronization}{5}{subsection.2.1.5}%
+\contentsline {subsection}{\numberline {2.1.6}Theoretical Limitations}{6}{subsection.2.1.6}%
+\contentsline {section}{\numberline {2.2}GNSS and RTK Fundamentals}{6}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}GNSS Time Reference}{7}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Real-Time Kinematic (RTK) Enhancement}{7}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Timing Accuracy and Error Sources}{8}{subsection.2.2.3}%
+\contentsline {subsection}{\numberline {2.2.4}Suitability for UAV Swarms}{8}{subsection.2.2.4}%
+\contentsline {section}{\numberline {2.3}Microcontroller Timing Architectures}{9}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Internal Clock Sources}{9}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Hardware Timers and Counters}{10}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}Input Capture for PPS Synchronization}{10}{subsection.2.3.3}%
+\contentsline {subsection}{\numberline {2.3.4}Interrupt Latency and Jitter}{11}{subsection.2.3.4}%
+\contentsline {subsection}{\numberline {2.3.5}Clock Discipline and Local Time Base}{11}{subsection.2.3.5}%
+\contentsline {subsection}{\numberline {2.3.6}Hardware Constraints in UAV Platforms}{12}{subsection.2.3.6}%
+\contentsline {section}{\numberline {2.4}Existing Synchronization Solutions}{12}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Network-Based Synchronization Protocols}{13}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Sensor Network Synchronization Protocols}{13}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.4.3}GNSS-Based Synchronization}{14}{subsection.2.4.3}%
+\contentsline {subsection}{\numberline {2.4.4}Hybrid and Application-Specific Approaches}{14}{subsection.2.4.4}%
+\contentsline {subsection}{\numberline {2.4.5}Comparison and Justification of the Proposed Approach}{15}{subsection.2.4.5}%
+\contentsline {chapter}{\numberline {3}System Design}{17}{chapter.3}%
+\contentsline {section}{\numberline {3.1}System Requirements}{17}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Synchronization Accuracy Requirement}{17}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Deterministic Behavior}{18}{subsection.3.1.2}%
+\contentsline {subsection}{\numberline {3.1.3}Scalability}{18}{subsection.3.1.3}%
+\contentsline {subsection}{\numberline {3.1.4}Hardware Constraints}{19}{subsection.3.1.4}%
+\contentsline {subsection}{\numberline {3.1.5}Environmental Robustness}{19}{subsection.3.1.5}%
+\contentsline {subsection}{\numberline {3.1.6}Integration Requirements}{19}{subsection.3.1.6}%
+\contentsline {subsection}{\numberline {3.1.7}Summary of Requirements}{20}{subsection.3.1.7}%
+\contentsline {section}{\numberline {3.2}Hardware Architecture}{20}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Signal Flow}{21}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Timing Determinism}{21}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Power Architecture Considerations}{22}{subsection.3.2.3}%
+\contentsline {section}{\numberline {3.3}Communication Interfaces}{22}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}RTK PPS Interface}{22}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Companion Computer Interface}{23}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}Separation of Time-Critical and Non-Critical Tasks}{23}{subsection.3.3.3}%
+\contentsline {subsection}{\numberline {3.3.4}Scalability Considerations}{24}{subsection.3.3.4}%
+\contentsline {section}{\numberline {3.4}Time Distribution Concept}{24}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Local Time Base Generation}{25}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Timestamp Generation}{25}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Distribution to UAV System}{26}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.4}Global Consistency Across Swarm}{26}{subsection.3.4.4}%
+\contentsline {chapter}{\numberline {4}Hardware Implementation}{27}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Microcontroller Core Design}{27}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Device Selection Rationale}{27}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Clock Architecture}{28}{subsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.1.3}PPS Input Configuration}{29}{subsection.4.1.3}%
+\contentsline {subsection}{\numberline {4.1.4}Reset and Boot Configuration}{29}{subsection.4.1.4}%
+\contentsline {subsection}{\numberline {4.1.5}Debug Interface}{29}{subsection.4.1.5}%
+\contentsline {section}{\numberline {4.2}DCF77 and RTK PPS Interface Design}{30}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}PPS Signal Routing}{30}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Direct Edge Detection}{31}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}UART Diagnostic Communication}{31}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.2.4}Connector Mirroring Strategy}{31}{subsection.4.2.4}%
+\contentsline {subsection}{\numberline {4.2.5}Design Considerations for Timing Accuracy}{32}{subsection.4.2.5}%
+\contentsline {section}{\numberline {4.3}Power Supply Design}{32}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Voltage Regulation}{33}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Design Justification}{33}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}Limitations and Future Improvement}{33}{subsection.4.3.3}%
+\contentsline {subsection}{\numberline {4.3.4}Power Integrity Considerations}{34}{subsection.4.3.4}%
+\contentsline {section}{\numberline {4.4}PCB Layout and Grounding Strategy}{34}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Layer Stack Configuration}{35}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}Ground Plane Strategy}{35}{subsection.4.4.2}%
+\contentsline {subsection}{\numberline {4.4.3}Component Placement Philosophy}{36}{subsection.4.4.3}%
+\contentsline {subsection}{\numberline {4.4.4}Power Plane Design}{36}{subsection.4.4.4}%
+\contentsline {subsection}{\numberline {4.4.5}High-Speed and Timing Trace Considerations}{36}{subsection.4.4.5}%
+\contentsline {subsection}{\numberline {4.4.6}Thermal and Mechanical Stability}{37}{subsection.4.4.6}%
+\contentsline {section}{\numberline {4.5}Signal Integrity and Timing Preservation}{37}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}Edge Integrity of the PPS Signal}{38}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}Timer Resolution Limitation}{38}{subsection.4.5.2}%
+\contentsline {subsection}{\numberline {4.5.3}Interrupt Latency Considerations}{39}{subsection.4.5.3}%
+\contentsline {subsection}{\numberline {4.5.4}Jitter Sources}{39}{subsection.4.5.4}%
+\contentsline {subsection}{\numberline {4.5.5}Preservation Through Hardware Architecture}{40}{subsection.4.5.5}%
+\contentsline {section}{\numberline {4.6}Design Trade-offs}{40}{section.4.6}%
+\contentsline {chapter}{\numberline {5}Firmware Implementation}{41}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Firmware Structure}{41}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Time Synchronization Algorithm}{41}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Interrupt and Timer Configuration}{42}{section.5.3}%
+\contentsline {section}{\numberline {5.4}RTK and PPS Data Handling}{43}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Communication Protocols}{43}{section.5.5}%
+\contentsline {chapter}{\numberline {6}Integration with UAV System}{45}{chapter.6}%
+\contentsline {section}{\numberline {6.1}ROS Node Architecture}{45}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Data Exchange with Companion Computer}{45}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Testing on UAV Platform}{46}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Integration Summary}{47}{section.6.4}%
+\contentsline {chapter}{\numberline {7}Testing and Evaluation}{48}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Measurement Setup}{48}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Single-Board DCF77 Synchronization Test}{49}{section.7.2}%
+\contentsline {section}{\numberline {7.3}RTK PPS Synchronization Evaluation}{49}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Two-Board Synchronization Comparison}{51}{section.7.4}%
+\contentsline {section}{\numberline {7.5}ROS2 Logging and Arrival-Time Analysis}{51}{section.7.5}%
+\contentsline {section}{\numberline {7.6}Communication Reliability}{52}{section.7.6}%
+\contentsline {section}{\numberline {7.7}Limitations of the Measurement Method}{53}{section.7.7}%
+\contentsline {section}{\numberline {7.8}Evaluation Summary}{53}{section.7.8}%
+\contentsline {chapter}{\numberline {8}Conclusion}{55}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Summary of Results}{55}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Future Work}{56}{section.8.2}%
+\contentsline {chapter}{\numberline {9}References}{57}{chapter.9}%
+\contentsline {chapter}{\numberline {A}Schematic and PCB Layouts}{59}{appendix.A}%
+\contentsline {chapter}{\numberline {B}Firmware Code Listings}{64}{appendix.B}%
+\contentsline {section}{\numberline {B.1}DCF77 Decoding and Validation}{64}{section.B.1}%
+\contentsline {section}{\numberline {B.2}Software Real-Time Clock}{65}{section.B.2}%
+\contentsline {section}{\numberline {B.3}DCF77 Clock Synchronization}{67}{section.B.3}%
+\contentsline {section}{\numberline {B.4}UART Diagnostic Message Generation}{68}{section.B.4}%
+\contentsline {section}{\numberline {B.5}Main Firmware Loop}{69}{section.B.5}%
+\contentsline {section}{\numberline {B.6}External Interrupt Callback}{70}{section.B.6}%
+\contentsline {section}{\numberline {B.7}ROS2 Serial Node}{72}{section.B.7}%
+\contentsline {section}{\numberline {B.8}ROS2 Comparison Node}{74}{section.B.8}%
+\contentsline {section}{\numberline {B.9}RTK PPS Analysis Script}{77}{section.B.9}%
+\contentsline {chapter}{\numberline {C}Test Data and Results}{79}{appendix.C}%
+\contentsline {section}{\numberline {C.1}Raw Terminal Outputs}{79}{section.C.1}%
+\contentsline {section}{\numberline {C.2}RTK PPS Analysis Output}{79}{section.C.2}%
+\contentsline {section}{\numberline {C.3}Two-Board Comparison Output}{80}{section.C.3}%
+\contentsline {section}{\numberline {C.4}Generated Plots}{81}{section.C.4}%
+\contentsline {section}{\numberline {C.5}CSV Log Format}{84}{section.C.5}%

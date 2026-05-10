@@ -1,0 +1,1139 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\datalist[entry]{nyt/global//global/global/global}
+  \entry{r1}{article}{}{}
+    \name{author}{4}{}{%
+      {{hash=AM}{%
+         family={Abdelkader},
+         familyi={A\bibinitperiod},
+         given={M.},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=GS}{%
+         family={G{\"u}ler},
+         familyi={G\bibinitperiod},
+         given={S.},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=JH}{%
+         family={Jaleel},
+         familyi={J\bibinitperiod},
+         given={H.},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=SJ}{%
+         family={Shamma},
+         familyi={S\bibinitperiod},
+         given={J.},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{AM+1}
+    \strng{fullhash}{AMGSJHSJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{A}
+    \field{sortinithash}{A}
+    \verb{doi}
+    \verb 10.1007/s43154-021-00063-4
+    \endverb
+    \field{number}{3}
+    \field{pages}{309\bibrangedash 320}
+    \field{title}{Aerial swarms: recent applications and challenges}
+    \field{volume}{2}
+    \field{journaltitle}{Current Robotics Reports}
+    \field{year}{2021}
+  \endentry
+
+  \entry{ams1117Datasheet}{misc}{}{}
+    \name{author}{1}{}{%
+      {{hash=A}{%
+         family={{Advanced Monolithic Systems}},
+         familyi={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{A1}
+    \strng{fullhash}{A1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{A}
+    \field{sortinithash}{A}
+  \field{howpublished}{\url{https://www.advanced-monolithic.com/pdf/ds1117.pdf}}
+    \field{note}{Voltage regulator datasheet}
+    \field{title}{AMS1117 1A Low Dropout Voltage Regulator Datasheet}
+  \endentry
+
+  \entry{allan1966statistics}{article}{}{}
+    \name{author}{1}{}{%
+      {{hash=ADW}{%
+         family={Allan},
+         familyi={A\bibinitperiod},
+         given={David\bibnamedelima W.},
+         giveni={D\bibinitperiod\bibinitdelim W\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{ADW1}
+    \strng{fullhash}{ADW1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{A}
+    \field{sortinithash}{A}
+    \verb{doi}
+    \verb 10.1109/PROC.1966.4634
+    \endverb
+    \field{number}{2}
+    \field{pages}{221\bibrangedash 230}
+    \field{title}{Statistics of Atomic Frequency Standards}
+    \field{volume}{54}
+    \field{journaltitle}{Proceedings of the IEEE}
+    \field{year}{1966}
+  \endentry
+
+  \entry{altiumDesignerDocs}{misc}{}{}
+    \name{author}{1}{}{%
+      {{hash=A}{%
+         family={{Altium}},
+         familyi={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{A2}
+    \strng{fullhash}{A2}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{A}
+    \field{sortinithash}{A}
+  \field{howpublished}{\url{https://www.altium.com/documentation/altium-designer}}
+    \field{note}{Official Altium Designer documentation}
+    \field{title}{Altium Designer Technical Documentation}
+  \endentry
+
+  \entry{r2}{article}{}{}
+    \name{author}{7}{}{%
+      {{hash=BT}{%
+         family={Baca},
+         familyi={B\bibinitperiod},
+         given={T.},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=PM}{%
+         family={Petrlik},
+         familyi={P\bibinitperiod},
+         given={M.},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=VM}{%
+         family={Vrba},
+         familyi={V\bibinitperiod},
+         given={M.},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=SV}{%
+         family={Spurny},
+         familyi={S\bibinitperiod},
+         given={V.},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=PR}{%
+         family={Penicka},
+         familyi={P\bibinitperiod},
+         given={R.},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=HD}{%
+         family={Hert},
+         familyi={H\bibinitperiod},
+         given={D.},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=SM}{%
+         family={Saska},
+         familyi={S\bibinitperiod},
+         given={M.},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{BT+1}
+    \strng{fullhash}{BTPMVMSVPRHDSM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{B}
+    \field{sortinithash}{B}
+    \verb{doi}
+    \verb 10.1007/s10846-021-01383-5
+    \endverb
+    \field{number}{1}
+    \field{title}{The MRS UAV System: Pushing the Frontiers of Reproducible
+  Research, Real-world Deployment, and Education with Autonomous Unmanned
+  Aerial Vehicles}
+    \field{volume}{102}
+    \field{journaltitle}{Journal of Intelligent \& Robotic Systems}
+    \field{year}{2021}
+  \endentry
+
+  \entry{r4}{article}{}{}
+    \name{author}{4}{}{%
+      {{hash=CM}{%
+         family={Coppola},
+         familyi={C\bibinitperiod},
+         given={M.},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=MKN}{%
+         family={McGuire},
+         familyi={M\bibinitperiod},
+         given={K.\bibnamedelima N.},
+         giveni={K\bibinitperiod\bibinitdelim N\bibinitperiod},
+      }}%
+      {{hash=SKYW}{%
+         family={Scheper},
+         familyi={S\bibinitperiod},
+         given={K.\bibnamedelima Y.\bibnamedelima W.},
+         giveni={K\bibinitperiod\bibinitdelim Y\bibinitperiod\bibinitdelim
+  W\bibinitperiod},
+      }}%
+      {{hash=dCGCHE}{%
+         prefix={de},
+         prefixi={d\bibinitperiod},
+         family={Croon},
+         familyi={C\bibinitperiod},
+         given={G.\bibnamedelima C. H.\bibnamedelima E.},
+         giveni={G\bibinitperiod\bibinitdelim C\bibinitperiod\bibinitdelim
+  H\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CM+1}
+    \strng{fullhash}{CMMKNSKYWCGCHEd1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{C}
+    \field{sortinithash}{C}
+    \verb{doi}
+    \verb 10.1007/s10514-018-9760-3
+    \endverb
+    \field{number}{8}
+    \field{pages}{1787\bibrangedash 1805}
+    \field{title}{On-board communication-based relative localization for
+  collision avoidance in Micro Air Vehicle teams}
+    \field{volume}{42}
+    \field{journaltitle}{Autonomous Robots}
+    \field{year}{2018}
+  \endentry
+
+  \entry{cristian1989probabilistic}{article}{}{}
+    \name{author}{1}{}{%
+      {{hash=CF}{%
+         family={Cristian},
+         familyi={C\bibinitperiod},
+         given={Flaviu},
+         giveni={F\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CF1}
+    \strng{fullhash}{CF1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{C}
+    \field{sortinithash}{C}
+    \verb{doi}
+    \verb 10.1007/BF01784024
+    \endverb
+    \field{number}{3}
+    \field{pages}{146\bibrangedash 158}
+    \field{title}{Probabilistic Clock Synchronization}
+    \field{volume}{3}
+    \field{journaltitle}{Distributed Computing}
+    \field{year}{1989}
+  \endentry
+
+  \entry{r5}{inproceedings}{}{}
+    \name{author}{5}{}{%
+      {{hash=DA}{%
+         family={Dmytruk},
+         familyi={D\bibinitperiod},
+         given={A.},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=NT}{%
+         family={Nascimento},
+         familyi={N\bibinitperiod},
+         given={T.},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=AA}{%
+         family={Ahmad},
+         familyi={A\bibinitperiod},
+         given={A.},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=BT}{%
+         family={Baca},
+         familyi={B\bibinitperiod},
+         given={T.},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=SM}{%
+         family={Saska},
+         familyi={S\bibinitperiod},
+         given={M.},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{DA+1}
+    \strng{fullhash}{DANTAABTSM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{D}
+    \field{sortinithash}{D}
+    \field{booktitle}{2021 International Conference on Unmanned Aircraft
+  Systems (ICUAS)}
+    \verb{doi}
+    \verb 10.1109/ICUAS51884.2021.9476794
+    \endverb
+    \field{pages}{1391\bibrangedash 1399}
+    \field{title}{Safe Tightly-Constrained UAV Swarming in GNSS-denied
+  Environments}
+    \field{year}{2021}
+  \endentry
+
+  \entry{r6}{inproceedings}{}{}
+    \name{author}{1}{}{%
+      {{hash=GS}{%
+         family={Goel},
+         familyi={G\bibinitperiod},
+         given={S.},
+         giveni={S\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{GS1}
+    \strng{fullhash}{GS1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{G}
+    \field{sortinithash}{G}
+    \field{booktitle}{Proceedings of the 30th International Technical Meeting
+  of The Satellite Division of the Institute of Navigation (ION GNSS+ 2017)}
+    \verb{doi}
+    \verb 10.33012/2017.15217
+    \endverb
+    \field{title}{A distributed cooperative UAV swarm localization system:
+  development and analysis}
+    \field{year}{2017}
+  \endentry
+
+  \entry{r7}{article}{}{}
+    \name{author}{21}{}{%
+      {{hash=HD}{%
+         family={Hert},
+         familyi={H\bibinitperiod},
+         given={D.},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=BT}{%
+         family={Baca},
+         familyi={B\bibinitperiod},
+         given={T.},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=PP}{%
+         family={Petracek},
+         familyi={P\bibinitperiod},
+         given={P.},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=KV}{%
+         family={Kratky},
+         familyi={K\bibinitperiod},
+         given={V.},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=PR}{%
+         family={Penicka},
+         familyi={P\bibinitperiod},
+         given={R.},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=SV}{%
+         family={Spurny},
+         familyi={S\bibinitperiod},
+         given={V.},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=PM}{%
+         family={Petrlik},
+         familyi={P\bibinitperiod},
+         given={M.},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=VM}{%
+         family={Vrba},
+         familyi={V\bibinitperiod},
+         given={M.},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=ZD}{%
+         family={Zaitlik},
+         familyi={Z\bibinitperiod},
+         given={D.},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=SP}{%
+         family={Stoudek},
+         familyi={S\bibinitperiod},
+         given={P.},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=WV}{%
+         family={Walter},
+         familyi={W\bibinitperiod},
+         given={V.},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=SP}{%
+         family={Stepan},
+         familyi={S\bibinitperiod},
+         given={P.},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=HJ}{%
+         family={Horyna},
+         familyi={H\bibinitperiod},
+         given={J.},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=PV}{%
+         family={Pritzl},
+         familyi={P\bibinitperiod},
+         given={V.},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=SM}{%
+         family={Sramek},
+         familyi={S\bibinitperiod},
+         given={M.},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=AA}{%
+         family={Ahmad},
+         familyi={A\bibinitperiod},
+         given={A.},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=SG}{%
+         family={Silano},
+         familyi={S\bibinitperiod},
+         given={G.},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=LDB}{%
+         family={Licea},
+         familyi={L\bibinitperiod},
+         given={D.\bibnamedelima B.},
+         giveni={D\bibinitperiod\bibinitdelim B\bibinitperiod},
+      }}%
+      {{hash=SP}{%
+         family={Stibinger},
+         familyi={S\bibinitperiod},
+         given={P.},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=NT}{%
+         family={Nascimento},
+         familyi={N\bibinitperiod},
+         given={T.},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=SM}{%
+         family={Saska},
+         familyi={S\bibinitperiod},
+         given={M.},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HD+1}
+    \strng{fullhash}{HDBTPPKVPRSVPMVMZDSPWVSPHJPVSMAASGLDBSPNTSM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{H}
+    \field{sortinithash}{H}
+    \verb{doi}
+    \verb 10.1007/s10846-023-01879-2
+    \endverb
+    \field{number}{4}
+    \field{title}{MRS Drone: A Modular Platform for Real-World Deployment of
+  Aerial Multi-Robot Systems}
+    \field{volume}{108}
+    \field{journaltitle}{Journal of Intelligent \& Robotic Systems}
+    \field{year}{2023}
+  \endentry
+
+  \entry{r8}{article}{}{}
+    \name{author}{6}{}{%
+      {{hash=HJ}{%
+         family={Horyna},
+         familyi={H\bibinitperiod},
+         given={J.},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=KV}{%
+         family={Kratky},
+         familyi={K\bibinitperiod},
+         given={V.},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=PV}{%
+         family={Pritzl},
+         familyi={P\bibinitperiod},
+         given={V.},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=BT}{%
+         family={Baca},
+         familyi={B\bibinitperiod},
+         given={T.},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=FE}{%
+         family={Ferrante},
+         familyi={F\bibinitperiod},
+         given={E.},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=SM}{%
+         family={Saska},
+         familyi={S\bibinitperiod},
+         given={M.},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HJ+1}
+    \strng{fullhash}{HJKVPVBTFESM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{H}
+    \field{sortinithash}{H}
+    \verb{doi}
+    \verb 10.1109/LRA.2024.3390596
+    \endverb
+    \field{number}{6}
+    \field{pages}{5284\bibrangedash 5291}
+    \field{title}{Fast swarming of UAVs in GNSS-denied feature-poor
+  environments without explicit communication}
+    \field{volume}{9}
+    \field{journaltitle}{IEEE Robotics and Automation Letters}
+    \field{year}{2024}
+  \endentry
+
+  \entry{ieee1588}{misc}{}{}
+    \name{author}{1}{}{%
+      {{hash=I}{%
+         family={{IEEE}},
+         familyi={I\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{I1}
+    \strng{fullhash}{I1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{I}
+    \field{sortinithash}{I}
+    \field{howpublished}{IEEE Std 1588-2019}
+    \field{note}{Precision Time Protocol standard}
+    \field{title}{IEEE Standard for a Precision Clock Synchronization Protocol
+  for Networked Measurement and Control Systems}
+    \field{year}{2019}
+  \endentry
+
+  \entry{kopetz2011realtime}{book}{}{}
+    \name{author}{1}{}{%
+      {{hash=KH}{%
+         family={Kopetz},
+         familyi={K\bibinitperiod},
+         given={Hermann},
+         giveni={H\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Springer}%
+    }
+    \strng{namehash}{KH1}
+    \strng{fullhash}{KH1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{K}
+    \field{sortinithash}{K}
+    \field{edition}{2nd}
+    \field{isbn}{978-1441982377}
+    \field{title}{Real-Time Systems: Design Principles for Distributed Embedded
+  Applications}
+    \field{year}{2011}
+  \endentry
+
+  \entry{lamport1978time}{article}{}{}
+    \name{author}{1}{}{%
+      {{hash=LL}{%
+         family={Lamport},
+         familyi={L\bibinitperiod},
+         given={Leslie},
+         giveni={L\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LL1}
+    \strng{fullhash}{LL1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{L}
+    \field{sortinithash}{L}
+    \verb{doi}
+    \verb 10.1145/359545.359563
+    \endverb
+    \field{number}{7}
+    \field{pages}{558\bibrangedash 565}
+    \field{title}{Time, Clocks, and the Ordering of Events in a Distributed
+  System}
+    \field{volume}{21}
+    \field{journaltitle}{Communications of the ACM}
+    \field{year}{1978}
+  \endentry
+
+  \entry{levine2012atomic}{article}{}{}
+    \name{author}{1}{}{%
+      {{hash=LJ}{%
+         family={Levine},
+         familyi={L\bibinitperiod},
+         given={Judah},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LJ1}
+    \strng{fullhash}{LJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{L}
+    \field{sortinithash}{L}
+    \verb{doi}
+    \verb 10.1063/1.3682993
+    \endverb
+    \field{number}{2}
+    \field{title}{The Statistical Modeling of Atomic Clocks and the Design of
+  Time Scales}
+    \field{volume}{83}
+    \field{journaltitle}{Review of Scientific Instruments}
+    \field{year}{2012}
+  \endentry
+
+  \entry{lopez2021uavmesh}{inproceedings}{}{}
+    \name{author}{5}{}{%
+      {{hash=LMA}{%
+         family={Lopez},
+         familyi={L\bibinitperiod},
+         given={Miguel\bibnamedelima A.},
+         giveni={M\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+      {{hash=BM}{%
+         family={Baddeley},
+         familyi={B\bibinitperiod},
+         given={Matthew},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=LWT}{%
+         family={Lunardi},
+         familyi={L\bibinitperiod},
+         given={Walter\bibnamedelima T.},
+         giveni={W\bibinitperiod\bibinitdelim T\bibinitperiod},
+      }}%
+      {{hash=PA}{%
+         family={Pandey},
+         familyi={P\bibinitperiod},
+         given={Ankit},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=GJ}{%
+         family={Giacalone},
+         familyi={G\bibinitperiod},
+         given={Joseph},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LMA+1}
+    \strng{fullhash}{LMABMLWTPAGJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{L}
+    \field{sortinithash}{L}
+    \field{booktitle}{17th International Conference on Distributed Computing in
+  Sensor Systems (DCOSS)}
+    \verb{doi}
+    \verb 10.1109/DCOSS52077.2021.00059
+    \endverb
+    \field{pages}{319\bibrangedash 326}
+    \field{title}{Towards Secure Wireless Mesh Networks for UAV Swarm
+  Connectivity: Current Threats, Research, and Opportunities}
+    \field{year}{2021}
+  \endentry
+
+  \entry{maroti2004ftsp}{article}{}{}
+    \name{author}{4}{}{%
+      {{hash=MM}{%
+         family={Mar√≥ti},
+         familyi={M\bibinitperiod},
+         given={Mikl√≥s},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=KB}{%
+         family={Kusy},
+         familyi={K\bibinitperiod},
+         given={Branislav},
+         giveni={B\bibinitperiod},
+      }}%
+      {{hash=SG}{%
+         family={Simon},
+         familyi={S\bibinitperiod},
+         given={Gyula},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=√L}{%
+         prefix={√Åkos},
+         prefixi={√\bibinitperiod},
+         family={L√©deczi},
+         familyi={L\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{MM+1}
+    \strng{fullhash}{MMKBSGL√1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{M}
+    \field{sortinithash}{M}
+    \verb{doi}
+    \verb 10.1145/1031495.1031501
+    \endverb
+    \field{pages}{39\bibrangedash 49}
+    \field{title}{The Flooding Time Synchronization Protocol}
+    \field{journaltitle}{Proceedings of the 2nd International Conference on
+  Embedded Networked Sensor Systems (SenSys)}
+    \field{year}{2004}
+  \endentry
+
+  \entry{PCBtimesynco}{misc}{}{}
+    \name{author}{1}{}{%
+      {{hash=NM}{%
+         family={Nos},
+         familyi={N\bibinitperiod},
+         given={Michael},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{NM1}
+    \strng{fullhash}{NM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{N}
+    \field{sortinithash}{N}
+    \field{note}{Altium Designer project documentation}
+    \field{title}{UAV Time Synchronization Board Schematics and PCB Design}
+    \field{year}{2026}
+  \endentry
+
+  \entry{ros2Docs}{misc}{}{}
+    \name{author}{1}{}{%
+      {{hash=O}{%
+         family={{Open Robotics}},
+         familyi={O\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{O1}
+    \strng{fullhash}{O1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{O}
+    \field{sortinithash}{O}
+    \field{howpublished}{\url{https://docs.ros.org/en/humble/index.html}}
+    \field{note}{Official ROS 2 Humble documentation}
+    \field{title}{ROS 2 Documentation}
+  \endentry
+
+  \entry{ptbDcf77}{misc}{}{}
+    \name{author}{1}{}{%
+      {{hash=P}{%
+         family={{Physikalisch-Technische Bundesanstalt}},
+         familyi={P\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{P1}
+    \strng{fullhash}{P1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{P}
+    \field{sortinithash}{P}
+  \field{howpublished}{\url{https://www.ptb.de/cms/en/ptb/fachabteilungen/abt4/fb-44/ag-442/dissemination-of-legal-time/dcf77.html}}
+    \field{note}{Official information page on dissemination of legal time via
+  DCF77}
+    \field{title}{DCF77}
+    \field{year}{2026}
+  \endentry
+
+  \entry{cp2102Datasheet}{misc}{}{}
+    \name{author}{1}{}{%
+      {{hash=S}{%
+         family={{Silicon Laboratories}},
+         familyi={S\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{S1}
+    \strng{fullhash}{S1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{S}
+    \field{sortinithash}{S}
+  \field{howpublished}{\url{https://www.silabs.com/documents/public/data-sheets/CP2102-9.pdf}}
+    \field{note}{USB-to-UART bridge controller datasheet}
+    \field{title}{CP2102/9 USB-to-UART Bridge Controller Datasheet}
+    \field{year}{2017}
+  \endentry
+
+  \entry{stm32F042Datasheet}{misc}{}{}
+    \name{author}{1}{}{%
+      {{hash=S}{%
+         family={{STMicroelectronics}},
+         familyi={S\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{S2}
+    \strng{fullhash}{S2}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{S}
+    \field{sortinithash}{S}
+  \field{howpublished}{\url{https://www.st.com/resource/en/datasheet/stm32f042c4.pdf}}
+    \field{note}{ARM-based 32-bit MCU datasheet}
+    \field{title}{STM32F042x4 STM32F042x6 Datasheet}
+    \field{year}{2017}
+  \endentry
+
+  \entry{stm32F0ReferenceManual}{misc}{}{}
+    \name{author}{1}{}{%
+      {{hash=S}{%
+         family={{STMicroelectronics}},
+         familyi={S\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{S2}
+    \strng{fullhash}{S2}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{S}
+    \field{sortinithash}{S}
+  \field{howpublished}{\url{https://www.st.com/resource/en/reference_manual/rm0091-stm32f0x1stm32f0x2stm32f0x8-advanced-armbased-32bit-mcus-stmicroelectronics.pdf}}
+    \field{note}{STM32F0 reference manual}
+    \field{title}{RM0091 Reference Manual: STM32F0x1, STM32F0x2, STM32F0x8
+  Advanced ARM-Based 32-bit MCUs}
+    \field{year}{2022}
+  \endentry
+
+  \entry{teunissen2017springer}{book}{}{}
+    \name{editor}{2}{}{%
+      {{hash=TPJG}{%
+         family={Teunissen},
+         familyi={T\bibinitperiod},
+         given={Peter J.\bibnamedelima G.},
+         giveni={P\bibinitperiod\bibinitdelim J\bibinitperiod\bibinitdelim
+  G\bibinitperiod},
+      }}%
+      {{hash=MO}{%
+         family={Montenbruck},
+         familyi={M\bibinitperiod},
+         given={Oliver},
+         giveni={O\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Springer}%
+    }
+    \strng{namehash}{TPJGMO1}
+    \strng{fullhash}{TPJGMO1}
+    \field{labelnamesource}{editor}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{T}
+    \field{sortinithash}{T}
+    \verb{doi}
+    \verb 10.1007/978-3-319-42928-1
+    \endverb
+    \field{title}{Springer Handbook of Global Navigation Satellite Systems}
+    \field{year}{2017}
+  \endentry
+
+  \entry{r10}{article}{}{}
+    \name{author}{3}{}{%
+      {{hash=VM}{%
+         family={Vrba},
+         familyi={V\bibinitperiod},
+         given={M.},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=HD}{%
+         family={Hert},
+         familyi={H\bibinitperiod},
+         given={D.},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=SM}{%
+         family={Saska},
+         familyi={S\bibinitperiod},
+         given={M.},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{VM+1}
+    \strng{fullhash}{VMHDSM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{V}
+    \field{sortinithash}{V}
+    \verb{doi}
+    \verb 10.1109/LRA.2019.2927130
+    \endverb
+    \field{number}{4}
+    \field{pages}{3402\bibrangedash 3409}
+    \field{title}{Onboard marker-less detection and localization of
+  non-cooperating drones for their safe interception by an autonomous aerial
+  system}
+    \field{volume}{4}
+    \field{journaltitle}{IEEE Robotics and Automation Letters}
+    \field{year}{2019}
+  \endentry
+
+  \entry{r11}{article}{}{}
+    \name{author}{4}{}{%
+      {{hash=VV}{%
+         family={Vrba},
+         familyi={V\bibinitperiod},
+         given={V.},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=WV}{%
+         family={Walter},
+         familyi={W\bibinitperiod},
+         given={V.},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=SP}{%
+         family={Stepan},
+         familyi={S\bibinitperiod},
+         given={P.},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=SM}{%
+         family={Saska},
+         familyi={S\bibinitperiod},
+         given={M.},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{VV+1}
+    \strng{fullhash}{VVWVSPSM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{V}
+    \field{sortinithash}{V}
+    \verb{doi}
+    \verb 10.1007/s10514-025-10197-5
+    \endverb
+    \field{pages}{13}
+    \field{title}{FIMD: fast isolated marker detection for UV-based visual
+  relative localisation in agile UAV swarms}
+    \field{volume}{49}
+    \field{journaltitle}{Autonomous Robots}
+    \field{year}{2025}
+  \endentry
+
+  \entry{r12}{article}{}{}
+    \name{author}{4}{}{%
+      {{hash=WV}{%
+         family={Walter},
+         familyi={W\bibinitperiod},
+         given={V.},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=SN}{%
+         family={Staub},
+         familyi={S\bibinitperiod},
+         given={N.},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=FA}{%
+         family={Franchi},
+         familyi={F\bibinitperiod},
+         given={A.},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=SM}{%
+         family={Saska},
+         familyi={S\bibinitperiod},
+         given={M.},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{WV+1}
+    \strng{fullhash}{WVSNFASM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{W}
+    \field{sortinithash}{W}
+    \verb{doi}
+    \verb 10.1109/LRA.2019.2901683
+    \endverb
+    \field{number}{3}
+    \field{pages}{2637\bibrangedash 2644}
+    \field{title}{UVDAR system for visual relative localization with
+  application to leader-follower formations of multirotor UAVs}
+    \field{volume}{4}
+    \field{journaltitle}{IEEE Robotics and Automation Letters}
+    \field{year}{2019}
+  \endentry
+
+  \entry{r13}{inproceedings}{}{}
+    \name{author}{3}{}{%
+      {{hash=WV}{%
+         family={Walter},
+         familyi={W\bibinitperiod},
+         given={V.},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=VM}{%
+         family={Vrba},
+         familyi={V\bibinitperiod},
+         given={M.},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=SM}{%
+         family={Saska},
+         familyi={S\bibinitperiod},
+         given={M.},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{WV+1}
+    \strng{fullhash}{WVVMSM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{W}
+    \field{sortinithash}{W}
+    \field{booktitle}{2020 IEEE International Conference on Robotics and
+  Automation (ICRA)}
+    \verb{doi}
+    \verb 10.1109/ICRA40945.2020.9196947
+    \endverb
+    \field{pages}{10674\bibrangedash 10680}
+    \field{title}{On training datasets for machine learning-based visual
+  relative localization of micro-scale UAVs}
+    \field{year}{2020}
+  \endentry
+
+  \entry{r14}{article}{}{}
+    \name{author}{2}{}{%
+      {{hash=XX}{%
+         family={Xiong},
+         familyi={X\bibinitperiod},
+         given={X.},
+         giveni={X\bibinitperiod},
+      }}%
+      {{hash=CBJ}{%
+         family={Choi},
+         familyi={C\bibinitperiod},
+         given={B.-J.},
+         giveni={B\bibinithyphendelim J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{XXCBJ1}
+    \strng{fullhash}{XXCBJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{X}
+    \field{sortinithash}{X}
+    \verb{doi}
+    \verb 10.5391/IJFIS.2013.13.4.284
+    \endverb
+    \field{number}{4}
+    \field{pages}{284\bibrangedash 290}
+    \field{title}{Comparative analysis of detection algorithms for corner and
+  blob features in image processing}
+    \field{volume}{13}
+    \field{journaltitle}{International Journal of Fuzzy Logic and Intelligent
+  Systems}
+    \field{year}{2013}
+  \endentry
+
+  \entry{r15}{article}{}{}
+    \name{author}{6}{}{%
+      {{hash=YJN}{%
+         family={Yasin},
+         familyi={Y\bibinitperiod},
+         given={J.\bibnamedelima N.},
+         giveni={J\bibinitperiod\bibinitdelim N\bibinitperiod},
+      }}%
+      {{hash=MSAS}{%
+         family={Mohamed},
+         familyi={M\bibinitperiod},
+         given={S.\bibnamedelima A.\bibnamedelima S.},
+         giveni={S\bibinitperiod\bibinitdelim A\bibinitperiod\bibinitdelim
+  S\bibinitperiod},
+      }}%
+      {{hash=HMH}{%
+         family={Haghbayan},
+         familyi={H\bibinitperiod},
+         given={M.-H.},
+         giveni={M\bibinithyphendelim H\bibinitperiod},
+      }}%
+      {{hash=HJ}{%
+         family={Heikkonen},
+         familyi={H\bibinitperiod},
+         given={J.},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=TH}{%
+         family={Tenhunen},
+         familyi={T\bibinitperiod},
+         given={H.},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=PJ}{%
+         family={Plosila},
+         familyi={P\bibinitperiod},
+         given={J.},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{YJN+1}
+    \strng{fullhash}{YJNMSASHMHHJTHPJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{Y}
+    \field{sortinithash}{Y}
+    \verb{doi}
+    \verb 10.1109/ACCESS.2020.3000064
+    \endverb
+    \field{pages}{105139\bibrangedash 105155}
+    \field{title}{Unmanned Aerial Vehicles (UAVs): Collision Avoidance Systems
+  and Approaches}
+    \field{volume}{8}
+    \field{journaltitle}{IEEE Access}
+    \field{year}{2020}
+  \endentry
+\enddatalist
+\endinput

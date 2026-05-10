@@ -1,0 +1,343 @@
+%!TEX root = ../main.tex
+
+\chapter{Theoretical Background\label{chap:theoreticalBackground}}
+
+This chapter presents the theoretical principles required to understand the design of the proposed time-synchronization system. It first explains clock offset, clock drift, oscillator stability, and the difference between synchronization accuracy and precision in distributed embedded systems \cite{kopetz2011realtime,lamport1978time,allan1966statistics,levine2012atomic}. It then discusses common synchronization approaches, including network-based methods such as IEEE 1588 PTP and hardware-assisted synchronization using external timing signals \cite{ieee1588,maroti2004ftsp,cristian1989probabilistic}.
+
+The chapter also introduces the two external timing references used in this work. DCF77 is discussed as a longwave radio time signal that provides absolute calendar time \cite{ptbDcf77}, while GNSS/RTK PPS is discussed as a stable one-second timing reference suitable for disciplining a local embedded clock \cite{r6}. Finally, the chapter explains microcontroller timing architectures, including hardware timers, external interrupts, and interrupt-driven timestamping, which form the basis of the STM32 firmware implementation.
+
+\section{Time Synchronization Principles}
+
+Time synchronization in distributed systems is the process of aligning independent local clocks to a common time reference. In a UAV swarm, each vehicle or embedded module contains its own oscillator-driven clock, and these clocks do not remain identical over time. Manufacturing tolerances, temperature changes, supply-voltage variation, and oscillator aging cause local clocks to drift from one another \cite{kopetz2011realtime,allan1966statistics,levine2012atomic}.
+
+In distributed robotic systems, inconsistent time bases can lead to incorrect ordering of events, inaccurate sensor-data correlation, and degraded coordination between agents. This is especially relevant for UAV swarms, where measurements from inertial sensors, cameras, GNSS receivers, and communication messages may need to be compared across multiple platforms \cite{r1,r2,r7}. The general problem of ordering events in distributed systems was formalized by Lamport, who showed that independent nodes cannot assume a globally consistent event order without a synchronization mechanism \cite{lamport1978time}.
+
+Synchronization methods can be divided into two broad categories. Network-based methods estimate clock offset by exchanging timestamped messages between nodes, as in Cristian's algorithm, FTSP, or IEEE 1588 PTP \cite{cristian1989probabilistic,maroti2004ftsp,ieee1588}. These methods are flexible, but their precision depends on communication-delay stability. In wireless UAV networks, variable latency, interference, and packet buffering can introduce significant jitter \cite{lopez2021uavmesh}.
+
+Hardware-assisted synchronization uses an external physical timing signal, such as a radio time signal or a PPS pulse, and captures this signal directly in embedded hardware. This reduces dependence on communication latency and is therefore better suited for deterministic timing. The system developed in this thesis follows this principle: DCF77 is used to acquire absolute calendar time \cite{ptbDcf77}, while the RTK PPS signal is used as a stable one-second reference for the local STM32 software clock.
+
+\subsection{Clock Model in Distributed Systems}
+
+A local clock in a distributed embedded system can be described as an approximation of an ideal reference time. If $t$ denotes the true reference time, the clock of node $i$ can be modeled as
+\begin{equation}
+C_i(t) = \alpha_i t + \beta_i ,
+\end{equation}
+where $C_i(t)$ is the local clock value, $\alpha_i$ represents the clock skew, and $\beta_i$ represents the clock offset \cite{kopetz2011realtime,lamport1978time}. The offset describes the instantaneous time difference between the local clock and the reference time, while the skew describes the relative frequency error of the oscillator.
+
+If two nodes have different skew values, their clocks diverge even if they are initially synchronized. For example, an oscillator error of 10 ppm means that the clock can drift by approximately $10~\mu$s every second. Over longer operation, this error accumulates and can reach milliseconds or seconds if no external correction is applied \cite{allan1966statistics,levine2012atomic}.
+
+This clock model is directly relevant to the implemented synchronization module. The STM32 timer provides the local time base, but its oscillator is not sufficiently accurate for long-term independent operation. Therefore, the firmware periodically corrects the local software clock using external timing references. In the final implementation, DCF77 provides absolute calendar time, while the RTK PPS signal provides a stable one-second boundary used to prevent accumulated drift.
+
+\subsection{Oscillator Stability and Drift}
+
+The accuracy of a local embedded clock depends mainly on the stability of its oscillator. Microcontrollers commonly use internal RC oscillators or external crystal oscillators as their clock source. These oscillators are not ideal and their frequency can deviate from the nominal value because of manufacturing tolerance, temperature variation, supply-voltage changes, aging, and mechanical stress \cite{allan1966statistics,levine2012atomic}.
+
+Oscillator frequency error is commonly expressed in parts per million (ppm). A frequency error of 1 ppm corresponds to a timing error of approximately $1~\mu$s per second. Therefore, a 10 ppm oscillator can accumulate about $10~\mu$s of error every second, which corresponds to approximately 36 ms after one hour if the clock is not corrected.
+
+This accumulated error is called clock drift. In short-duration measurements, drift may be small, but in long-running distributed systems it becomes significant. For UAV swarm applications, such drift can reduce the consistency of sensor timestamps and make comparison of events between different nodes unreliable \cite{kopetz2011realtime}.
+
+The implemented system addresses this problem by not relying only on the free-running STM32 oscillator. DCF77 is used to obtain absolute time information, and the RTK PPS signal is used as an external one-second reference. By incrementing the software clock from PPS events after synchronization, the final firmware prevents long-term drift of the internal software clock.
+
+\subsection{Precision and Accuracy}
+
+In time synchronization, precision and accuracy describe different properties and should not be used interchangeably. Accuracy expresses how close a local clock is to an absolute reference time, such as UTC. Precision expresses how closely multiple clocks agree with each other, regardless of whether they are perfectly aligned to absolute time \cite{kopetz2011realtime}.
+
+For example, two UAV nodes may have high relative precision if their clocks differ only by a few microseconds, even if both clocks are shifted from UTC by several milliseconds. Conversely, a single node may be accurate with respect to UTC, but poor communication or local timestamping delays may reduce the precision of synchronization between multiple nodes.
+
+In distributed UAV systems, both properties are important. Absolute accuracy is required when measurements must be related to a global time scale, while relative precision is important when comparing sensor data or events between multiple vehicles \cite{r1,r2,r7}. In this thesis, DCF77 is used to provide absolute calendar time \cite{ptbDcf77}, while the RTK PPS signal is used to provide a stable one-second reference for maintaining the local software clock.
+
+The experimental evaluation in this work reports timing behavior using firmware and ROS2 logs with millisecond-level visibility. Therefore, the results demonstrate stable observable alignment and elimination of long-term software-clock drift at the implemented measurement resolution, but they should not be interpreted as a direct proof of sub-microsecond synchronization accuracy.
+
+\subsection{Network-Based Synchronization Methods}
+
+Network-based synchronization methods align clocks by exchanging timestamped messages between nodes. A node estimates the time offset between its local clock and another clock by measuring message transmission and reception times. Classical examples include Cristian's algorithm, the Flooding Time Synchronization Protocol (FTSP), and the IEEE 1588 Precision Time Protocol (PTP) \cite{cristian1989probabilistic,maroti2004ftsp,ieee1588}.
+
+The main limitation of these methods is their dependence on communication-delay estimation. If the network delay is constant and symmetric, the clock offset can be estimated accurately. However, if the delay varies, the synchronization error increases. A simplified relation is
+\begin{equation}
+\varepsilon \approx \frac{\sigma_{delay}}{2},
+\end{equation}
+where $\varepsilon$ is the synchronization uncertainty and $\sigma_{delay}$ represents delay variability.
+
+In wired networks, protocols such as IEEE 1588 PTP can achieve high precision, especially when hardware timestamping is available \cite{ieee1588}. In wireless UAV networks, however, message delay can vary because of medium access contention, interference, packet buffering, retransmissions, and changing topology \cite{lopez2021uavmesh}. This makes purely network-based synchronization less suitable as the primary timing mechanism for deterministic embedded synchronization.
+
+For this reason, the synchronization approach used in this thesis does not depend on ROS2 message arrival time or wireless communication latency. Instead, timing is generated locally on the STM32 using external physical references. DCF77 provides absolute time information, and the RTK PPS signal provides a stable second boundary. ROS2 is used only for logging, monitoring, and evaluation of the produced synchronization data.
+
+\subsection{Hardware-Assisted Synchronization}
+
+Hardware-assisted synchronization uses a physical timing signal to align local clocks. Instead of estimating time offset through network message exchange, an external signal is connected directly to embedded hardware, where it can be detected with low and predictable latency. Examples of such timing signals include PPS outputs from GNSS receivers and radio time signals such as DCF77 \cite{ptbDcf77}.
+
+A major advantage of hardware-assisted synchronization is that the timing reference is separated from communication latency. When a PPS edge is captured by a microcontroller timer or external interrupt, the synchronization event is generated locally and does not depend on packet transmission, operating-system scheduling, or ROS2 message arrival time. This reduces the uncertainty caused by variable communication delay \cite{kopetz2011realtime}.
+
+The synchronization uncertainty can be expressed as a combination of physical and embedded timing errors:
+\begin{equation}
+\varepsilon_{sync} \approx \varepsilon_{source} + \varepsilon_{capture} + \varepsilon_{jitter},
+\end{equation}
+where $\varepsilon_{source}$ represents the timing error of the external reference, $\varepsilon_{capture}$ represents the timer or interrupt capture uncertainty, and $\varepsilon_{jitter}$ represents remaining implementation-related jitter.
+
+The system developed in this thesis follows this approach. DCF77 is used to decode absolute calendar time, while the RTK PPS signal is used as the stable one-second event for the STM32 software clock. After the first valid DCF77 synchronization, the firmware increments the internal clock using RTK PPS interrupts. This prevents long-term software-clock drift and keeps synchronization independent of ROS2 transport timing.
+
+\subsection{Theoretical Limitations}
+
+Even when hardware-assisted synchronization is used, perfect time alignment cannot be achieved in practice. The final synchronization quality is limited by both the external timing source and the embedded implementation. Important error sources include reference-signal jitter, timer resolution, interrupt latency, input threshold uncertainty, oscillator instability between reference events, and electrical noise on the PCB \cite{kopetz2011realtime,allan1966statistics,levine2012atomic}.
+
+The timer resolution creates a fundamental quantization limit. If a timer runs at frequency $f_{clk}$, the smallest directly measurable time step is
+\begin{equation}
+\Delta t = \frac{1}{f_{clk}} .
+\end{equation}
+Any event detected by the microcontroller can only be represented with this finite resolution unless additional interpolation or specialized hardware timestamping is used.
+
+In addition to timer resolution, interrupt processing can introduce jitter. Although hardware timer capture can store an event timestamp independently of software execution, interrupt-based firmware still requires careful design to avoid delays caused by long interrupt routines, lower-priority tasks, or communication handling \cite{kopetz2011realtime}. For this reason, time-critical processing should be kept short and separated from non-critical communication tasks.
+
+In the implemented system, the final synchronization behavior was evaluated mainly using UART messages, firmware counters, and ROS2 logs. This measurement method provides millisecond-level visibility and is sufficient to verify stable PPS-driven second generation and elimination of long-term software-clock drift. However, it does not directly prove sub-microsecond synchronization accuracy. A direct microsecond-level evaluation would require hardware timestamping or an external measurement instrument with sufficient time resolution.
+
+\section{GNSS and RTK Fundamentals}
+
+Global Navigation Satellite Systems (GNSS) provide positioning and timing information by receiving precisely time-stamped signals from satellites. Since satellite navigation systems depend on accurate time measurement, GNSS receivers can also be used as stable timing sources in embedded and robotic systems \cite{teunissen2017springer}.
+
+Real-Time Kinematic (RTK) GNSS improves positioning accuracy by using correction data from a reference station. Although RTK is mainly used for centimeter-level positioning, RTK-capable receivers commonly provide a precise PPS output that can be used as an external timing reference. In this thesis, the RTK receiver is therefore important primarily as a source of a stable one-second PPS signal, not as a fully decoded GNSS time source.
+
+The developed system combines this PPS reference with DCF77 absolute time reception. DCF77 provides calendar time, while the RTK PPS signal provides a stable second boundary for the STM32 software clock. This separation allows the firmware to maintain absolute time while reducing long-term drift of the local embedded clock.
+
+\subsection{GNSS Time Reference}
+
+GNSS receivers determine position and time by measuring signals transmitted from navigation satellites. Since each satellite signal is associated with a precise transmission time, GNSS systems rely on accurate timekeeping as a fundamental part of their operation \cite{teunissen2017springer}. As a result, GNSS receivers can provide not only position information, but also useful timing outputs for embedded systems.
+
+A common timing output of GNSS receivers is the Pulse Per Second (PPS) signal. The PPS signal produces one electrical pulse per second, with the active edge aligned to the receiver's internal estimate of GNSS time. When satellite reception is stable, this pulse can be used as an external reference for disciplining a local microcontroller clock.
+
+In the implemented system, the GNSS/RTK receiver was used primarily through its PPS output. The firmware did not fully decode GNSS time messages for calendar-time acquisition. Instead, absolute time was obtained from the DCF77 signal, while the RTK PPS signal was used to generate stable one-second increments of the STM32 software clock. This separation reflects the final practical architecture of the project.
+
+\subsection{Real-Time Kinematic (RTK) Enhancement}
+
+Real-Time Kinematic (RTK) is a GNSS enhancement technique that improves positioning accuracy by using correction data from a reference station with known coordinates. In contrast to standard code-based GNSS positioning, RTK uses carrier-phase measurements and ambiguity resolution to achieve significantly higher positioning accuracy \cite{teunissen2017springer}.
+
+In UAV systems, RTK is commonly used when accurate position estimation is required for navigation, mapping, formation flight, or multi-robot localization. High-quality GNSS and RTK solutions can improve spatial consistency between vehicles and support more reliable coordination in outdoor environments \cite{r6}.
+
+In this thesis, RTK is not used as a fully processed positioning pipeline inside the STM32 firmware. The microcontroller does not compute RTK corrections or decode full GNSS time messages. Instead, the RTK-capable receiver is used mainly as a source of a stable PPS signal. This PPS signal provides a precise one-second timing event that is used to drive the local STM32 software clock after DCF77-based absolute time synchronization.
+
+This distinction is important for the final system architecture. DCF77 provides the absolute calendar time, while the RTK PPS signal improves the stability of second generation. Therefore, RTK contributes to the timing pipeline through its hardware PPS output rather than through full RTK data processing in the microcontroller.
+
+\subsection{Timing Accuracy and Error Sources}
+
+GNSS-based timing can provide a highly stable external time reference, but its practical accuracy depends on both satellite-signal conditions and receiver implementation. Important GNSS error sources include satellite clock and ephemeris errors, ionospheric and tropospheric delays, multipath reflections, receiver noise, and antenna placement \cite{teunissen2017springer}. These effects influence the receiver solution and can also affect the stability of the generated PPS signal.
+
+When the PPS signal is used in an embedded system, additional implementation-related errors appear. These include propagation delay in cables and PCB traces, input threshold uncertainty at the microcontroller pin, timer quantization, interrupt latency, and software processing jitter \cite{kopetz2011realtime}. Therefore, the total timing uncertainty is not determined only by the GNSS receiver, but by the complete signal path from the receiver output to the firmware measurement.
+
+The total uncertainty can be described conceptually as
+\begin{equation}
+\varepsilon_{total} \approx \varepsilon_{gnss} + \varepsilon_{pps} + \varepsilon_{hardware} + \varepsilon_{software},
+\end{equation}
+where $\varepsilon_{gnss}$ represents GNSS-related timing errors, $\varepsilon_{pps}$ represents receiver PPS output jitter, $\varepsilon_{hardware}$ represents signal-routing and timer-capture limitations, and $\varepsilon_{software}$ represents firmware and logging uncertainty.
+
+In the implemented system, the RTK PPS signal was used as the external reference for stable second generation. The firmware and ROS2 evaluation confirmed that the internal software clock remained aligned with the PPS event at millisecond-level measurement resolution. However, because the final evaluation used UART messages, HAL tick timing, and ROS2 logs, the experiment does not directly quantify nanosecond or sub-microsecond PPS accuracy. A more precise characterization would require hardware timer input capture or an external timing instrument.
+
+\subsection{Suitability for UAV Swarms}
+
+UAV swarms require consistent timing because measurements and actions from multiple vehicles often need to be compared or coordinated. Applications such as cooperative mapping, formation flight, distributed sensing, and multi-robot localization depend on reliable timestamping and event ordering across different platforms \cite{r1,r2,r7}.
+
+A suitable synchronization approach for UAV swarms should be scalable and should not rely only on communication between vehicles. Wireless networks in UAV systems can experience changing latency, packet loss, interference, and dynamic topology changes, which makes network-based synchronization less deterministic \cite{lopez2021uavmesh}. For this reason, an external timing reference available independently to each node is attractive.
+
+GNSS-based timing is suitable for outdoor UAV systems because each vehicle can receive a common global reference without exchanging synchronization messages with other vehicles \cite{teunissen2017springer}. In practical embedded implementations, the PPS output of a GNSS or RTK receiver can be connected directly to a microcontroller input and used as a stable second-boundary reference.
+
+The system developed in this thesis follows this idea, but with a practical separation of roles. DCF77 is used to obtain absolute calendar time, while the RTK PPS signal is used to stabilize the local STM32 software clock. This architecture is suitable as a prototype for UAV swarm timing experiments because it reduces dependence on ROS2 or wireless message timing and allows synchronization behavior to be logged and evaluated through the companion-computer environment.
+
+\section{Microcontroller Timing Architectures}
+
+Microcontrollers are suitable for embedded time-synchronization systems because they include hardware peripherals for deterministic event detection and time measurement. Typical timing-related peripherals include clock sources, prescalers, hardware timers, external interrupt lines, capture/compare units, and communication interfaces \cite{kopetz2011realtime}. These components allow a microcontroller to measure external timing signals and maintain a local time base with limited software overhead.
+
+In synchronization applications, the microcontroller clock defines the resolution of internal time measurements, while external signals provide correction or reference events. A timer can be configured as a free-running counter, and signal edges can be detected using external interrupts or hardware input-capture functionality. This makes it possible to measure pulse widths, detect periodic timing events, and update a software clock.
+
+The implemented system uses these principles on an STM32F042 microcontroller. TIM2 is used as the main timing counter for signal measurements, external interrupt lines are used to detect DCF77 and RTK PPS signal edges, and firmware logic maintains a software real-time clock. After a valid DCF77 frame provides absolute time, the RTK PPS interrupt is used to generate stable one-second increments. UART communication is used only for diagnostics and ROS2 logging, not as the primary timing reference.
+
+\subsection{Internal Clock Sources}
+
+A microcontroller requires a clock source to execute instructions and drive peripheral timing. Common clock sources include internal RC oscillators, external crystal oscillators, low-speed oscillators for real-time clocks, and phase-locked loops used for frequency multiplication. The STM32F042 family supports several clock options, including an internal 8 MHz RC oscillator, an internal 48 MHz oscillator, external crystal sources, and PLL-based clock generation \cite{stm32F042Datasheet,stm32F0ReferenceManual}.
+
+The choice of clock source influences timer resolution, power consumption, peripheral availability, and long-term timing stability. Internal RC oscillators are simple and require no external components, but their frequency accuracy is lower than that of external crystal oscillators. External crystals usually provide better stability, while PLLs can generate higher system frequencies but add configuration complexity.
+
+In the final implementation of this thesis, the STM32 firmware used the internal HSI clock configuration because it provided stable operation during development and testing. Earlier attempts to use the native USB clock path and HSI48 oscillator were not reliable on the prototype hardware. Therefore, the final communication path used UART through an external CP2102 USB-UART bridge, while timing was stabilized using external synchronization signals.
+
+The internal STM32 clock was not treated as an absolute long-term time reference. Instead, it provided the local timing base for firmware execution and signal measurement. Absolute time was obtained from DCF77, and long-term second generation was stabilized by the RTK PPS signal.
+
+\subsection{Hardware Timers and Counters}
+
+Hardware timers are microcontroller peripherals used to measure time intervals, generate periodic events, and timestamp external signals. A timer usually consists of a counter register, a prescaler, an auto-reload value, and optional capture/compare channels. The counter is incremented by a clock derived from the microcontroller clock tree \cite{stm32F0ReferenceManual}.
+
+If the timer input clock is $f_{clk}$ and the prescaler value is $PSC$, the effective timer counting frequency is
+\begin{equation}
+f_{timer} = \frac{f_{clk}}{PSC + 1}.
+\end{equation}
+The corresponding timer resolution is
+\begin{equation}
+\Delta t = \frac{1}{f_{timer}}.
+\end{equation}
+This means that a higher timer frequency gives better timing resolution, but may also require more careful handling of counter overflow and interrupt timing.
+
+In the implemented firmware, TIM2 was configured as the main free-running timing counter. With the STM32 internal clock running at 8 MHz and the TIM2 prescaler set to $8000 - 1$, the effective timer resolution was approximately 1 ms. This resolution was sufficient for measuring DCF77 pulse widths, where logical values are represented by pulse lengths of approximately 100 ms and 200 ms.
+
+The timer was also used for internal software-clock fallback behavior and timing diagnostics. However, the final stable second generation was not based only on the free-running timer. After a valid DCF77 synchronization, the RTK PPS interrupt became the main event used to increment the software clock, preventing long-term drift caused by local timer inaccuracy.
+
+\subsection{Input Capture for PPS Synchronization}
+
+Input capture is a timer function that records the current counter value when an external signal edge is detected. For PPS-based synchronization, the rising edge of the PPS signal can be connected to a timer input channel. When the edge occurs, the hardware stores the timer value in a capture register without waiting for software execution \cite{stm32F0ReferenceManual}.
+
+If $T_k$ is the captured timer value at the $k$-th PPS edge, the firmware can compare it with the expected timer value for an ideal one-second interval. The timing error can be expressed as
+\begin{equation}
+\varepsilon_k = T_k - T_{expected}.
+\end{equation}
+This method is useful because the timestamp is created by hardware, so the measurement is less affected by interrupt latency. The interrupt service routine can then process the already captured value later, without changing the original event timestamp \cite{kopetz2011realtime}.
+
+In the final prototype, the RTK PPS signal was detected using an external interrupt input rather than full timer input-capture mode. The interrupt was used to increment the software clock after a valid DCF77 synchronization. This implementation was sufficient to verify PPS-driven second generation and removal of long-term software-clock drift at millisecond-level measurement resolution. For future microsecond-level evaluation, the PPS signal should be connected to a timer input-capture channel and measured using hardware timestamps.
+
+\subsection{Interrupt Latency and Jitter}
+
+Interrupts allow a microcontroller to react to external events without continuously polling an input pin. When an external signal edge occurs, the interrupt controller suspends the current program flow and executes the corresponding interrupt service routine. However, this reaction is not instantaneous. The delay between the physical event and the start of interrupt processing is called interrupt latency \cite{kopetz2011realtime,stm32F0ReferenceManual}.
+
+Interrupt latency depends on several factors, including processor state, interrupt priority, disabled interrupt sections, memory access time, and whether another interrupt is already being processed. If this delay varies between events, the variation is called jitter. In timing-sensitive applications, jitter is important because it can cause uncertainty in measured pulse widths or event timestamps.
+
+In general, firmware for time synchronization should keep interrupt service routines short and deterministic. Time-critical operations should be performed immediately, while longer tasks such as message formatting, UART transmission, logging, or complex validation should be deferred to the main loop. This reduces the probability that communication tasks disturb timing measurements \cite{kopetz2011realtime}.
+
+The implemented firmware follows this principle. DCF77 signal edges and RTK PPS events are detected in external interrupt callbacks, while UART diagnostic transmission is performed later in the main loop using a pending flag. This design keeps the interrupt path shorter and helps separate synchronization events from non-time-critical communication with the ROS2 logging system.
+
+\subsection{Clock Discipline and Local Time Base}
+
+Clock discipline is the process of correcting a local clock using an external timing reference. Instead of allowing the local oscillator to run freely, the system periodically compares the local time base with a reference signal and applies corrections to keep the clock error bounded \cite{kopetz2011realtime}.
+
+A local clock can be described as $C(t)$, while the external reference time can be described as $R(t)$. The synchronization objective is to minimize the difference between them:
+\begin{equation}
+\varepsilon(t) = C(t) - R(t).
+\end{equation}
+If no correction is applied, oscillator skew causes $\varepsilon(t)$ to grow over time. A disciplined clock reduces this growth by applying periodic corrections based on external synchronization events.
+
+In embedded systems, clock discipline can be implemented in different ways. Some systems adjust oscillator frequency or timer parameters, while simpler implementations maintain a software time base and correct its counters when a reference event is received. The second approach is suitable for compact microcontroller systems where simplicity and deterministic behavior are important.
+
+The implemented firmware uses a software real-time clock containing seconds, minutes, hours, day, month, and year. After a valid DCF77 frame is decoded, the software clock is initialized to the received absolute time. After this initial synchronization, the RTK PPS interrupt is used as the stable one-second event. Each valid PPS event increments the software clock by one second, which prevents accumulated drift from the free-running STM32 timer.
+
+This design separates the local time base from communication timing. UART and ROS2 are used to transmit and evaluate synchronization messages, but they do not discipline the clock directly.
+
+\subsection{Hardware Constraints in UAV Platforms}
+
+UAV platforms impose several practical constraints on embedded synchronization hardware. The module must be compact, lightweight, and power-efficient so that it can be integrated without significantly affecting the vehicle payload, flight time, or internal electronics layout \cite{r2,r7}. In addition, the synchronization system must operate reliably together with sensors, flight controllers, communication modules, and companion computers.
+
+The electrical environment of a UAV can be challenging. Motors, electronic speed controllers, switching regulators, and radio transmitters can generate electromagnetic interference and supply-voltage disturbances. These effects may influence oscillator stability, digital input thresholds, and communication reliability. Therefore, PCB layout, grounding, decoupling, and signal routing are important for preserving timing integrity \cite{kopetz2011realtime}.
+
+Mechanical and environmental effects must also be considered. Vibration, temperature variation, and changing outdoor conditions can influence oscillator behavior and connector reliability. For timing systems, these effects are relevant because oscillator drift and unstable signal edges can directly affect time measurement quality \cite{allan1966statistics,levine2012atomic}.
+
+The implemented prototype addresses these constraints by using a compact STM32-based PCB, a simple 3.3 V power architecture, short timing-signal paths, and UART communication through an external CP2102 USB-UART bridge. Native USB communication was tested during development but was not reliable on the prototype hardware. Therefore, the final validation used the more stable UART path for ROS2 logging, while DCF77 and RTK PPS signals remained responsible for synchronization.
+
+\section{Existing Synchronization Solutions}
+
+Time synchronization has been studied in several areas, including distributed computer systems, wireless sensor networks, industrial Ethernet systems, and robotic platforms. Existing solutions can generally be divided into network-based methods, sensor-network synchronization protocols, and hardware-reference-based methods.
+
+Network-based methods synchronize clocks by exchanging timestamped messages between nodes. Classical examples include Lamport clocks, Cristian's algorithm, and IEEE 1588 Precision Time Protocol \cite{lamport1978time,cristian1989probabilistic,ieee1588}. These approaches are useful when synchronization must be distributed through a communication network, but their performance depends strongly on delay estimation and network stability.
+
+Wireless sensor network protocols, such as FTSP, improve synchronization by reducing software timestamping uncertainty and estimating clock drift over time \cite{maroti2004ftsp}. However, these methods still depend on message exchange and can be affected by wireless link quality, topology changes, and packet delay variation.
+
+Hardware-reference-based synchronization uses an external physical timing signal instead of relying only on communication messages. GNSS receivers can provide a PPS output, and radio time systems such as DCF77 can provide absolute time information \cite{teunissen2017springer,ptbDcf77}. Such approaches are attractive for embedded systems because the timing event can be detected locally by microcontroller hardware or interrupts.
+
+The solution developed in this thesis follows the hardware-reference approach. DCF77 is used for absolute calendar-time acquisition, while the RTK PPS signal is used as a stable one-second reference for the STM32 software clock. ROS2 and UART communication are used for logging and evaluation, not as the primary synchronization mechanism. This architecture was chosen because it is compact, practical for a prototype UAV-related embedded module, and less dependent on variable communication latency than purely network-based synchronization.
+
+\subsection{Network-Based Synchronization Protocols}
+
+Network-based synchronization protocols estimate clock offset by exchanging timestamped messages between nodes. The basic idea is to compare the local send and receive times of synchronization messages and use them to estimate propagation delay and clock difference. Classical examples include Lamport logical clocks, Cristian's algorithm, and the IEEE 1588 Precision Time Protocol \cite{lamport1978time,cristian1989probabilistic,ieee1588}.
+
+Lamport clocks provide logical ordering of distributed events, but they do not provide physical time synchronization \cite{lamport1978time}. Cristian's algorithm estimates the offset between a client and a time server by assuming bounded message delay \cite{cristian1989probabilistic}. IEEE 1588 PTP improves practical precision by using timestamp exchange and, in many implementations, hardware timestamping at the network interface \cite{ieee1588}.
+
+The main limitation of network-based synchronization is sensitivity to communication delay variation. If the forward and reverse message delays are asymmetric or unstable, the estimated clock offset becomes inaccurate. This is especially problematic in wireless UAV networks, where interference, retransmissions, buffering, and dynamic topology changes can introduce variable latency and jitter \cite{lopez2021uavmesh}.
+
+In this thesis, network-based synchronization was not used as the primary timing mechanism. ROS2 communication and UART messages were used to observe, log, and evaluate synchronization data, but the local STM32 clock was synchronized using external physical timing references. This avoids making the clock discipline dependent on ROS2 message arrival time or wireless communication delay.
+
+\subsection{Sensor Network Synchronization Protocols}
+
+Wireless sensor networks introduced synchronization protocols designed for distributed embedded nodes with limited power and computational resources. One well-known example is the Flooding Time Synchronization Protocol (FTSP), which improves synchronization accuracy by timestamping messages close to the radio layer and estimating clock offset and skew over multiple synchronization messages \cite{maroti2004ftsp}.
+
+Compared with simple network time exchange, sensor network protocols reduce several sources of software delay and can achieve good precision in relatively stable networks. However, they still depend on communication between nodes. Their performance may degrade when wireless links are unstable, when topology changes frequently, or when packet loss and retransmissions occur.
+
+These limitations are relevant for UAV swarms, where vehicles move continuously and communication conditions may change during operation. Although sensor network synchronization protocols are useful for many distributed embedded systems, they are less suitable as the only timing source when deterministic local synchronization is required.
+
+The system implemented in this thesis therefore uses a different strategy. Instead of synchronizing nodes through exchanged wireless messages, the STM32 module uses external timing references. DCF77 provides absolute time information, while the RTK PPS signal provides the stable second event used by the local software clock.
+
+\subsection{GNSS-Based Synchronization}
+
+GNSS-based synchronization uses satellite navigation systems as a common external time reference. Since GNSS satellites transmit precisely time-stamped signals, a receiver can estimate both position and time. Many GNSS receivers also provide a PPS output, which can be used by embedded systems as a stable one-second timing reference \cite{teunissen2017springer}.
+
+A major advantage of GNSS-based synchronization is scalability. Each node can independently receive the same global timing reference, so no synchronization messages must be exchanged between UAVs. This reduces dependence on wireless communication latency and avoids the delay-estimation problem present in network-based methods.
+
+For UAV systems operating outdoors, GNSS-based timing is especially attractive because GNSS receivers are already commonly used for navigation and localization. In multi-robot systems, a shared external time reference can support consistent timestamping, sensor-data correlation, and coordinated evaluation across multiple platforms \cite{r6}.
+
+In the system developed in this thesis, GNSS-based synchronization was implemented in a limited but practical form. The RTK receiver was used as a source of a PPS signal, while the STM32 firmware did not decode full GNSS time messages. Absolute calendar time was obtained from DCF77, and the RTK PPS signal was used to stabilize the software clock after DCF77 synchronization. Therefore, the implemented system should be understood as DCF77-based absolute time acquisition combined with GNSS/RTK PPS-based second generation.
+
+\subsection{Hybrid and Application-Specific Approaches}
+
+Hybrid synchronization approaches combine multiple timing sources or synchronization mechanisms to compensate for the limitations of each individual method. For example, a system may use GNSS PPS for an accurate second reference, network communication for distributing status information, and a local oscillator for maintaining time between reference events \cite{teunissen2017springer,kopetz2011realtime}.
+
+Application-specific synchronization systems are often designed around the practical constraints of the target platform. In UAV systems, these constraints may include limited payload, limited power budget, electromagnetic noise, changing communication quality, and the need for integration with existing robotic software frameworks \cite{r2,r7,lopez2021uavmesh}. Therefore, a synchronization method that is theoretically precise may still require adaptation to become usable in a real embedded prototype.
+
+The system developed in this thesis follows a hybrid and application-specific approach. DCF77 is used to obtain absolute calendar time, RTK PPS is used to provide a stable one-second event, the STM32 firmware maintains the local software clock, and ROS2 is used for logging and evaluation. This separation of responsibilities allowed the prototype to remain simple while still addressing the main synchronization problem observed during development.
+
+This approach also reflects practical implementation results. Native USB communication on the prototype board was not reliable, so the final system used UART through a CP2102 USB-UART bridge for communication with the companion computer. As a result, the final architecture is based on physical timing references for synchronization and a separate robust communication path for diagnostics and analysis.
+
+\subsection{Comparison and Justification of the Proposed Approach}
+
+Table~\ref{tab:syncComparison} compares the synchronization approaches discussed in this chapter. The comparison shows that network-based and sensor-network-based methods are flexible, but their performance depends on communication-delay estimation. This is a limitation in UAV systems, where wireless links may experience variable latency, interference, packet buffering, and topology changes \cite{lopez2021uavmesh}.
+
+Hardware-reference-based synchronization avoids this limitation by using an external physical timing signal. GNSS receivers can provide a stable PPS output, while DCF77 can provide absolute calendar time \cite{teunissen2017springer,ptbDcf77}. This makes a hardware-assisted approach suitable for an embedded synchronization module where deterministic local timing is preferred over synchronization through network messages.
+
+The proposed system combines DCF77 and RTK PPS. DCF77 is used to acquire absolute date and time, while the RTK PPS signal is used to generate stable one-second increments of the STM32 software clock. UART and ROS2 are used only for diagnostics, logging, and evaluation. This architecture was selected because it is compact, practical for the developed prototype, and less dependent on communication-delay variability than purely network-based synchronization.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Comparison of synchronization strategies for distributed UAV systems}
+\label{tab:syncComparison}
+\begin{tabular}{|
+>{\raggedright\arraybackslash}p{2.5cm}|
+>{\raggedright\arraybackslash}p{3.0cm}|
+>{\raggedright\arraybackslash}p{2.3cm}|
+>{\raggedright\arraybackslash}p{2.0cm}|
+>{\raggedright\arraybackslash}p{3.5cm}|
+}
+\hline
+\textbf{Method} & \textbf{Typical precision} & \textbf{Network dependency} & \textbf{Scalability} & \textbf{Suitability for UAV swarms} \\
+\hline
+Lamport logical clocks \cite{lamport1978time} 
+& Logical ordering only 
+& High 
+& High 
+& Not suitable for physical time synchronization. \\
+\hline
+Cristian's algorithm \cite{cristian1989probabilistic} 
+& Millisecond-level, depending on delay estimation 
+& High 
+& Medium 
+& Limited by stochastic delay variability. \\
+\hline
+IEEE 1588 PTP \cite{ieee1588} 
+& Sub-microsecond in suitable wired systems with hardware timestamping; lower in wireless systems 
+& High 
+& Medium 
+& Powerful in controlled networks, but less deterministic in wireless UAV environments. \\
+\hline
+FTSP \cite{maroti2004ftsp} 
+& Microsecond-level in suitable sensor-network conditions 
+& Medium 
+& Medium 
+& Performance can degrade in mobile systems with changing wireless topology. \\
+\hline
+GNSS PPS synchronization \cite{teunissen2017springer} 
+& High-precision external second reference, receiver- and implementation-dependent 
+& None for timing reference 
+& High 
+& Suitable for outdoor UAV systems with satellite visibility. \\
+\hline
+DCF77 + RTK PPS approach used in this thesis \cite{ptbDcf77,teunissen2017springer} 
+& Millisecond-level observable alignment in the implemented evaluation; PPS reference supports finer future measurement 
+& None for clock generation; UART/ROS2 only for logging 
+& High 
+& Suitable as a compact prototype architecture combining absolute time and stable PPS-driven second generation. \\
+\hline
+\end{tabular}
+\end{table}
+
+The final row describes the implemented prototype rather than an ideal GNSS-disciplined clock. The system does not decode full GNSS time messages in the STM32 firmware and does not use ROS2 message arrival time as the synchronization source. Instead, the synchronization pipeline is based on DCF77 frame decoding, RTK PPS interrupt events, and a local software clock.
+
+This approach is justified by the practical goals of the thesis. The objective was to design and validate a compact microcontroller-based synchronization module, not to implement a complete GNSS receiver processing pipeline. The final measurements demonstrate stable PPS-driven second generation and elimination of long-term software-clock drift at the available millisecond-level measurement resolution.

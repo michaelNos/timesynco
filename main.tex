@@ -1,0 +1,1169 @@
+% enable this to activate the version for PRINT
+% disable this to make the pdf symmetric and without white pages
+% => asymmetric alternating left/right margins
+% \newcommand*{\printversion}{}%
+
+%% | ---------------- document meta information --------------- |
+
+\newcommand{\Author}{Nos Mikahel}
+\newcommand{\Department}{Department of Multi-robot Systems}
+\newcommand{\Supervisor}{Ing. Vojtěch Vrba}
+\newcommand{\SupervisorSpecialist}{Ing. Vojtěch Vrba}
+\newcommand{\Programme}{Electrical Engineering and Computer Science}
+\newcommand{\Title}{Design of Microcontroller Solution\\[0.5em]for Precise Time Synchronization\\[0.5em] in UAV Swarms}
+\newcommand{\Year}{2026}
+\newcommand{\Month}{January}
+\newcommand{\Date}{\Month~\Year}
+\newcommand{\Location}{Prague}
+
+%% | ---------------------- configuration --------------------- |
+
+% most of the configuration stuff happens here
+\input{src/document_setup.tex}
+
+%% | ---------------------- the contents ---------------------- |
+
+\begin{document}
+
+% this will prevent unwanted line overflows
+% http://latexref.xyz/_005cfussy-_0026-_005csloppy.html
+\sloppy
+
+\pagenumbering{roman}
+
+%% --------------------------------------------------------------
+%% |                         Title page                         |
+%% --------------------------------------------------------------
+
+\input{src/title}
+
+% set up the page style for the "intro" pages
+\pagestyle{plain}
+
+%% --------------------------------------------------------------
+%% |                       Acknowledgments                      |
+%% --------------------------------------------------------------
+
+\conditionalClearPage
+
+\input{src/acknowledgments.tex}
+
+%% --------------------------------------------------------------
+%% |                         Assignment                         |
+%% --------------------------------------------------------------
+
+\conditionalClearPage
+
+\includepdf{src/assignment.pdf}
+
+%% --------------------------------------------------------------
+%% |                         Declaration                        |
+%% --------------------------------------------------------------
+
+\conditionalClearPage
+
+\includepdf{src/declaration.pdf}
+
+%% --------------------------------------------------------------
+%% |                          Abstracts                         |
+%% --------------------------------------------------------------
+
+\conditionalClearPage
+
+\input{src/abstract_en.tex}
+
+\conditionalClearPage
+
+\input{src/abstrakt_cz.tex}
+
+%% --------------------------------------------------------------
+%% |                        Abbreviations                       |
+%% --------------------------------------------------------------
+
+\conditionalClearPage
+
+\begin{changemargin}{0.8cm}{0.8cm}
+
+~\vfill{}
+
+\section*{Abbreviations}
+
+% this will print only the used abbreviations
+\input{src/abbreviations.tex}
+
+\vskip 2.5cm
+
+\end{changemargin}
+
+\conditionalClearPage
+
+%% --------------------------------------------------------------
+%% |                      Table of contents                     |
+%% --------------------------------------------------------------
+
+\tableofcontents
+
+\conditionalClearPage
+
+% set up the full page style with normal page numbering
+\pagestyle{full}
+\pagenumbering{arabic}
+
+%% --------------------------------------------------------------
+%% |                        introduction                        |
+%% --------------------------------------------------------------
+
+\input{src/introduction.tex}
+
+%% --------------------------------------------------------------
+%% |                        Theoretical Background                        |
+%% --------------------------------------------------------------
+
+\input{src/theoreticalBackground.tex}
+
+%% --------------------------------------------------------------
+%% |                        System Design                        |
+%% --------------------------------------------------------------
+
+\input{src/systemDesign.tex}
+
+%% --------------------------------------------------------------
+%% |                        Hardware Implementation                       |
+%% --------------------------------------------------------------
+
+\input{src/hardwareImplementation.tex}
+
+%% --------------------------------------------------------------
+%% |                How to write thesis in LaTeX                |
+%% --------------------------------------------------------------
+
+%% --------------------------------------------------------------
+%% |                        Firmware Implementation                        |
+%% --------------------------------------------------------------
+
+\input{src/firmwareImplementation.tex}
+
+%% --------------------------------------------------------------
+%% |                        Integration with UAV System                      |
+%% --------------------------------------------------------------
+
+\input{src/integration.tex}
+
+%% --------------------------------------------------------------
+%% |                        Testing and Evaluation                    |
+%% --------------------------------------------------------------
+
+\input{src/testing.tex}
+
+%% --------------------------------------------------------------
+%% |                         Conclusion                         |
+%% --------------------------------------------------------------
+
+\input{src/conclusion.tex}
+
+%% --------------------------------------------------------------
+%% |                         References                         |
+%% --------------------------------------------------------------
+
+\chapter{References}
+
+\nocite{*}
+\printbibliography[heading=none]
+\setlength{\parindent}{0pt}
+
+%% --------------------------------------------------------------
+%% |                         Appendices                         |
+%% --------------------------------------------------------------
+
+\appendix
+
+\chapter{Schematic and PCB Layouts}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=1\textwidth]{fig/photos/block.jpg}
+  \caption{System block diagram of the synchronization module, showing the DCF77 absolute-time input, RTK PPS timing input, STM32 firmware processing, UART diagnostic output, and ROS2 logging pipeline.}
+  \label{fig:blockDiagram}
+\end{figure}
+
+\begin{sidewaysfigure}[p]
+  \centering
+  \includegraphics[width=0.9\textheight]{fig/photos/scm1.jpg}
+  \caption{USB-C power entry and 3.3 V regulator schematic. This part of the design provides the regulated supply rail for the STM32 microcontroller and onboard digital circuitry.}
+  \label{fig:usbPowerRegulator}
+\end{sidewaysfigure}
+
+\begin{sidewaysfigure}[p]
+  \centering
+  \includegraphics[width=0.9\textheight]{fig/photos/scm2.jpg}
+  \caption{STM32F042F6P6 microcontroller core schematic with reset, boot, SWD debugging, UART communication, DCF77 input, and RTK PPS timing-signal connections.}
+  \label{fig:mcuCore}
+\end{sidewaysfigure}
+
+\begin{sidewaysfigure}[p]
+  \centering
+  \includegraphics[width=0.9\textheight]{fig/photos/scm3.jpg}
+  \caption{DCF77 and GNSS/RTK interface schematic, including timing-signal connectors, mirrored connector routing, and PPS signal path to the STM32 input.}
+  \label{fig:timingInterfaces}
+\end{sidewaysfigure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=1\textwidth]{fig/photos/pcb.jpg}
+  \caption{PCB layout of the synchronization module, showing the compact four-layer board organization and routing of power, debugging, communication, and timing-signal sections.}
+  \label{fig:pcbLayout}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig/photos/pcb3d.png}
+  \caption{3D render of the synchronization PCB, showing the physical component placement and expected assembled-board structure.}
+  \label{fig:pcb3d}
+\end{figure}
+
+\chapter{Firmware Code Listings}
+\label{app:firmwareCode}
+
+This appendix contains selected firmware and ROS2 code listings used in the implemented synchronization system. The listings support the firmware description in Chapter~5 and document the main software blocks responsible for DCF77 decoding, software clock maintenance, RTK PPS processing, UART diagnostic output, and ROS2 logging.
+
+\section{DCF77 Decoding and Validation}
+\label{app:dcfDecoding}
+
+\begin{lstlisting}[style=codeStyle, language=C, caption={DCF77 BCD decoding and frame validation functions.}, label={lst:dcfDecoding}]
+// Decode DCF77 BCD section into integer value
+uint8_t decode_dcf_section(volatile uint8_t *bits, int start, int end) {
+    uint8_t result = 0;
+    // Standard BCD weights for DCF77
+    uint8_t weights[] = {1, 2, 4, 8, 10, 20, 40};
+
+    for (int i = 0; i <= (end - start); i++) {
+        if (bits[start + i]) {
+            result += weights[i];
+        }
+    }
+    return result;
+}
+
+uint8_t decode_dcf_year(uint8_t *bits)
+{
+    uint8_t w[] = {1, 2, 4, 8, 10, 20, 40, 80};
+    uint8_t res = 0;
+
+    for (int i = 0; i < 8; i++)
+        if (bits[50 + i]) res += w[i];
+
+    return res;
+}
+
+// Validate full DCF77 parity frame
+uint8_t dcf_check_parity_all(uint8_t *bits)
+{
+    uint8_t p;
+
+    p = 0;
+    for (int i = 21; i <= 27; i++)
+        p \^= bits[i];
+    if (p != bits[28]) return 0;
+
+    p = 0;
+    for (int i = 29; i <= 34; i++)
+        p \^= bits[i];
+    if (p != bits[35]) return 0;
+
+    p = 0;
+    for (int i = 36; i <= 57; i++)
+        p \^= bits[i];
+    if (p != bits[58]) return 0;
+
+    return 1;
+}
+
+uint8_t dcf_data_is_valid(uint8_t *bits)
+{
+    uint8_t m  = decode_dcf_section(bits, 21, 27);
+    uint8_t h  = decode_dcf_section(bits, 29, 34);
+    uint8_t d  = decode_dcf_section(bits, 36, 41);
+    uint8_t mo = decode_dcf_section(bits, 45, 49);
+    uint8_t y  = decode_dcf_year(bits);
+
+    if (m > 59) return 0;
+    if (h > 23) return 0;
+    if (mo < 1 || mo > 12) return 0;
+    if (d < 1 || d > days_in_month(mo, 2000 + y)) return 0;
+
+    // After first valid sync, reject impossible date jumps
+    if (clock_valid)
+    {
+        if (y != clk_year) return 0;
+        if (mo != clk_month) return 0;
+        if (d != clk_day) return 0;
+    }
+
+    return 1;
+}
+
+\end{lstlisting}
+
+\section{Software Real-Time Clock}
+\label{app:softwareRtc}
+
+\begin{lstlisting}[style=codeStyle, language=C, caption={Software RTC functions for calendar handling and one-second increments.}, label={lst:softwareRtc}]
+uint8_t is_leap_year(uint16_t year)
+{
+    if ((year % 400) == 0) return 1;
+    if ((year % 100) == 0) return 0;
+    if ((year % 4) == 0) return 1;
+    return 0;
+}
+
+uint8_t days_in_month(uint8_t month, uint16_t year)
+{
+    switch (month)
+    {
+        case 1:  return 31;
+        case 2:  return is_leap_year(year) ? 29 : 28;
+        case 3:  return 31;
+        case 4:  return 30;
+        case 5:  return 31;
+        case 6:  return 30;
+        case 7:  return 31;
+        case 8:  return 31;
+        case 9:  return 30;
+        case 10: return 31;
+        case 11: return 30;
+        case 12: return 31;
+        default: return 31;
+    }
+}
+
+// Increment internal software clock by one second
+void clock_add_one_second(void)
+{
+    clk_sec++;
+
+    if (clk_sec < 60) return;
+    clk_sec = 0;
+    clk_min++;
+
+    if (clk_min < 60) return;
+    clk_min = 0;
+    clk_hour++;
+
+    if (clk_hour < 24) return;
+    clk_hour = 0;
+    clk_day++;
+
+    uint16_t full_year = 2000 + clk_year;
+    if (clk_day <= days_in_month(clk_month, full_year)) return;
+    clk_day = 1;
+    clk_month++;
+
+    if (clk_month <= 12) return;
+    clk_month = 1;
+    clk_year++;
+}
+
+void apply_pending_dcf_sync(void)
+{
+	clk_min = pending_min;
+	clk_hour = pending_hour;
+	clk_day = pending_day;
+	clk_month = pending_month;
+	clk_year = pending_year;
+	clk_sec = 0;
+
+    clock_valid = 1;
+    pending_sync = 0;
+    use_rtk_pps_clock = 1;
+
+    last_clock_tick_ms = __HAL_TIM_GET_COUNTER(&htim2);
+    dcf_second_tick_ms = HAL_GetTick();
+
+    last_dcf_hour  = clk_hour;
+    last_dcf_min   = clk_min;
+    last_dcf_day   = clk_day;
+    last_dcf_month = clk_month;
+    last_dcf_year  = clk_year;
+
+    update_debug_time_string();
+
+    dcf_sync_done = 1;
+    last_valid_dcf_ms = HAL_GetTick();
+}
+
+\end{lstlisting}
+
+\section{DCF77 Clock Synchronization}
+\label{app:dcfClockSync}
+
+\begin{lstlisting}[style=codeStyle, language=C, caption={DCF77 synchronization and safe clock-correction functions.}, label={lst:dcfClockSync}]
+void sync_clock_from_dcf(uint8_t *bits)
+{
+    pending_min   = decode_dcf_section(bits, 21, 27);
+    pending_hour  = decode_dcf_section(bits, 29, 34);
+    pending_day   = decode_dcf_section(bits, 36, 41);
+    pending_month = decode_dcf_section(bits, 45, 49);
+    pending_year  = decode_dcf_year(bits);
+
+    pending_sync = 1;
+}
+
+void correct_clock_from_dcf_soft(uint8_t *bits)
+{
+    uint8_t dcf_min  = decode_dcf_section(bits, 21, 27);
+    uint8_t dcf_hour = decode_dcf_section(bits, 29, 34);
+    uint8_t dcf_day  = decode_dcf_section(bits, 36, 41);
+    uint8_t dcf_mon  = decode_dcf_section(bits, 45, 49);
+    uint8_t dcf_year = decode_dcf_year(bits);
+
+    // Save last valid DCF sync info
+    last_dcf_min   = dcf_min;
+    last_dcf_hour  = dcf_hour;
+    last_dcf_day   = dcf_day;
+    last_dcf_month = dcf_mon;
+    last_dcf_year  = dcf_year;
+
+    dcf_sync_done = 1;
+
+    // Only correct if date/hour/minute match current clock.
+    // This prevents bad jumps.
+    if (dcf_year != clk_year) return;
+    if (dcf_mon  != clk_month) return;
+    if (dcf_day  != clk_day) return;
+    if (dcf_hour != clk_hour) return;
+    if (dcf_min  != clk_min) return;
+
+    // At valid DCF minute boundary, seconds should be near 0.
+    // If internal clock is slightly ahead, pull it back by 1 second.
+    if (last_dcf_year == clk_year &&
+        last_dcf_month == clk_month &&
+        last_dcf_day == clk_day &&
+        last_dcf_hour == clk_hour &&
+        last_dcf_min == clk_min)
+    {
+        if (clk_sec >= 1 && clk_sec <= 10)
+        {
+            clk_sec = 0;
+            last_clock_tick_ms = __HAL_TIM_GET_COUNTER(&htim2);
+        }
+        else if (clk_sec >= 50)
+        {
+            clk_sec = 0;
+            last_clock_tick_ms = __HAL_TIM_GET_COUNTER(&htim2);
+        }
+    }
+
+    // If somehow seconds are 59, push to 0.
+    if (clk_sec == 59)
+    {
+        clk_sec = 0;
+    }
+
+    update_debug_time_string();
+    last_valid_dcf_ms = HAL_GetTick();
+}
+
+void check_dcf_sync_timeout(void)
+{
+    if (clock_valid)
+    {
+        if ((HAL_GetTick() - last_valid_dcf_ms) > 300000) // 5 minutes
+        {
+            update_debug_time_string();
+        }
+    }
+}
+\end{lstlisting}
+
+\section{UART Diagnostic Message Generation}
+\label{app:uartDiagnostics}
+
+\begin{lstlisting}[style=codeStyle, language=C, caption={UART diagnostic string generation with synchronization state and RTK PPS values.}, label={lst:uartDiagnostics}]
+void update_debug_time_string(void)
+{
+	if (clock_valid)
+	{
+		snprintf(debug_time_str, sizeof(debug_time_str),
+		         "%02u:%02u:%02u - %02u.%02u.20%02u - %s - SYNC=%d - LASTDCF=%02u.%02u.20%02u_%02u:%02u - RTK_PPS=%lu - RTK_DELTA=%lums - RTK_DIFF=%ldms\r\n",
+		         clk_hour, clk_min, clk_sec,
+		         clk_day, clk_month, clk_year,
+		         PCB_ID, clock_valid,
+		         last_dcf_day, last_dcf_month, last_dcf_year,
+		         last_dcf_hour, last_dcf_min,
+		         rtk_pps_count,
+		         rtk_pps_delta_ms,
+		         rtk_dcf_diff_ms);
+	}
+	else
+	{
+	    snprintf(debug_time_str, sizeof(debug_time_str),
+	             "NO_SYNC - %s - RTK_PPS=%lu - RTK_DELTA=%lums - RTK_DIFF=%ldms\r\n",
+	             PCB_ID,
+	             rtk_pps_count,
+	             rtk_pps_delta_ms,
+	             rtk_dcf_diff_ms);
+	}
+}
+\end{lstlisting}
+
+\section{Main Firmware Loop}
+\label{app:mainLoop}
+
+\begin{lstlisting}[style=codeStyle, language=C, caption={Main firmware loop handling fallback timing and deferred UART transmission.}, label={lst:mainLoop}]
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+	check_dcf_sync_timeout();
+
+	volatile uint32_t now_ms = __HAL_TIM_GET_COUNTER(&htim2);
+
+	if ((now_ms - last_clock_tick_ms) >= 1000)
+	{
+	    last_clock_tick_ms += 1000;
+
+	    if (!use_rtk_pps_clock)
+	    {
+	        clock_add_one_second();
+	        update_debug_time_string();
+	        pps_print_pending = 1;
+	    }
+	}
+
+	if (pps_print_pending)
+	{
+	    pps_print_pending = 0;
+
+	    HAL_UART_Transmit(&huart2,
+	                      (uint8_t*)debug_time_str,
+	                      strlen(debug_time_str),
+	                      HAL_MAX_DELAY);
+	}
+
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+  }
+  /* USER CODE END 3 */
+\end{lstlisting}
+
+\section{External Interrupt Callback}
+\label{app:extiCallback}
+
+\begin{lstlisting}[style=codeStyle, language=C, caption={External interrupt callback for DCF77 edge processing and RTK PPS handling.}, label={lst:extiCallback}]
+/* USER CODE BEGIN 4 */
+
+/* ============================================================================
+ * INTERRUPTS AND CALLBACKS
+ * ==========================================================================*/
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	// DCF77 edge processing
+    if (GPIO_Pin == GPIO_PIN_0)
+    {
+    	uint32_t now_ms = __HAL_TIM_GET_COUNTER(&htim2);
+
+        static uint32_t last_any_edge = 0;
+        if (now_ms - last_any_edge < 15) return; 
+        last_any_edge = now_ms;
+
+        GPIO_PinState pin_state = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0);
+
+        if (pin_state == GPIO_PIN_SET)
+        {
+            // rising edge
+
+            if (last_rise_time != 0)
+            {
+                last_rise_delta = now_ms - last_rise_time;
+
+
+                if (last_rise_delta > 1500)
+                {
+                	if (pending_sync)
+                	{
+                	    apply_pending_dcf_sync();
+                	}
+                	    minute_detected = 1;
+                	    second = 0;
+                	    parity = 0;
+
+                	    for (int i = 0; i < 59; i++)
+                	        bits[i] = 0;
+                }
+            }
+
+            rise_time = now_ms;
+            last_rise_time = now_ms;
+        }
+        else
+        {
+            // falling edge
+            last_width = now_ms - rise_time;
+
+        	if (!minute_detected) return;
+
+        	uint8_t bit = 2;
+            if (last_width >= 90 && last_width <= 155) bit = 0;
+            else if (last_width >= 180 && last_width <= 260) bit = 1;
+            else
+            {
+                dcf_bad_width_count++;
+                return;
+            }
+
+        	if (second < 59)
+        	{
+				bits[second++] = bit;
+
+				if (second == 59)
+				{
+				    parity = dcf_check_parity_all(bits);
+				    minute_detected = 0;
+
+				    if (!parity)
+				    {
+				        dcf_parity_fail_count++;
+				    }
+				    else if (!dcf_data_is_valid(bits))
+				    {
+				        dcf_data_fail_count++;
+				    }
+				    else
+				    {
+				        dcf_ok_count++;
+
+				        if (!clock_valid)
+				            sync_clock_from_dcf(bits);
+				        else
+				            correct_clock_from_dcf_soft(bits);
+				    }
+				}
+        	}
+        }
+    }
+    // RTK PPS processing
+    if (GPIO_Pin == GPIO_PIN_4)
+    {
+        uint32_t now = HAL_GetTick();
+        uint32_t delta = now - rtk_pps_last_ms;
+
+        if (delta > 990 && delta < 1010)
+        {
+            rtk_pps_delta_ms = delta;
+            rtk_pps_last_ms = now;
+            rtk_pps_tick_ms = now;
+            rtk_pps_count++;
+
+            if (use_rtk_pps_clock && clock_valid)
+            {
+                clock_add_one_second();
+                dcf_second_tick_ms = now;
+                update_debug_time_string();
+                pps_print_pending = 1;
+            }
+
+            rtk_dcf_diff_ms = (int32_t)rtk_pps_tick_ms - (int32_t)dcf_second_tick_ms;
+
+            while (rtk_dcf_diff_ms > 500) rtk_dcf_diff_ms -= 1000;
+            while (rtk_dcf_diff_ms < -500) rtk_dcf_diff_ms += 1000;
+        }
+        else if (delta > 1200)
+        {
+            rtk_pps_last_ms = now;
+        }
+    }
+}
+
+/* USER CODE END 4 */
+\end{lstlisting}
+
+\section{ROS2 Serial Node}
+\label{app:rosSerialNode}
+
+\begin{lstlisting}[style=codeStyle, language=Python, caption={ROS2 serial node for reading UART synchronization messages and publishing them to ROS2 topics.}, label={lst:rosSerialNode}]
+import rclpy
+import csv
+import os
+from rclpy.node import Node
+import serial
+
+from std_msgs.msg import String
+
+
+class SerialNode(Node):
+    def __init__(self):
+        super().__init__('serial_node')
+        self.get_logger().info('Serial node started')
+        self.declare_parameter('port', '/dev/ttyUSB0')
+        self.declare_parameter('topic', '/serial_raw')
+
+        self.port = self.get_parameter('port').value
+        self.topic = self.get_parameter('topic').value
+        self.csv_path = os.path.expanduser('~/ros2_ws/dcf_log.csv')
+        self.csv_file = open(self.csv_path, 'a', newline='')
+        self.csv_writer = csv.writer(self.csv_file)
+
+        if self.csv_file.tell() == 0:
+            self.csv_writer.writerow(['ros_time_sec', 'ros_time_nsec', 'raw_line'])
+
+        self.get_logger().info(f'Logging to {self.csv_path}')
+
+        self.raw_publisher = self.create_publisher(String, self.topic, 10)
+
+        self.ser = None
+
+        try:
+            self.ser = serial.Serial(self.port, 9600, timeout=0.1)
+            self.get_logger().info('Serial port opened')
+        except Exception as e:
+            self.get_logger().error(f"Failed to open serial port {self.port}: {e}")
+            self.ser = None
+
+        self.timer = self.create_timer(0.05, self.timer_callback)
+
+    def parse_dcf_time_line(self, line):
+        parts = line.split()
+
+        if len(parts) >= 9 and parts[1] == '-' and parts[3] == '-' and parts[5] == '-' and parts[7] == '-':
+            time_str = parts[0]
+            date_str = parts[2]
+            pcb_id = parts[4]
+            sync = parts[6]
+            lastdcf = parts[8]
+
+            return f'{time_str} {date_str} {pcb_id} {sync} {lastdcf}'
+
+        return None
+
+    def timer_callback(self):
+        if not self.ser:
+            self.get_logger().info('No serial port')
+            return
+
+        try:
+            line = self.ser.readline().decode('utf-8', errors='ignore').strip()
+
+            if not line:
+                return
+
+            self.get_logger().info(f'Received: {line}')
+            
+            now = self.get_clock().now().to_msg()
+
+            self.csv_writer.writerow([
+                now.sec,
+                now.nanosec,
+                line
+            ])
+            self.csv_file.flush()
+
+            raw_msg = String()
+            raw_msg.data = line
+            self.raw_publisher.publish(raw_msg)
+            self.get_logger().info(f'Published raw: {line}')
+
+            parsed = self.parse_dcf_time_line(line)
+
+            if parsed is not None:
+                self.get_logger().info(f'Parsed DCF time: {parsed}')
+
+        except Exception as e:
+            self.get_logger().warn(f'Read error: {e}')
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = SerialNode()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+\end{lstlisting}
+
+\section{ROS2 Comparison Node}
+\label{app:rosCompareNode}
+
+\begin{lstlisting}[style=codeStyle, language=Python, caption={ROS2 comparison node for evaluating two synchronization streams.}, label={lst:rosCompareNode}]
+class DcfCompareNode(Node):
+    def __init__(self):
+        super().__init__('dcf_compare')
+        self.create_subscription(String, '/dcf_a', self.cb_a, 10)
+        self.create_subscription(String, '/dcf_b', self.cb_b, 10)
+        self.csv_path = os.path.expanduser('~/ros2_ws/dcf_compare_log.csv')
+        self.csv_file = open(self.csv_path, 'a', newline='')
+        self.csv_writer = csv.writer(self.csv_file)
+        self.status_timer = self.create_timer(1.0, self.status_check)
+        self.selected_pub = self.create_publisher(String, "/dcf_time_selected", 10)
+        self.last_a_raw = None
+        self.last_b_raw = None
+        self.last_published_selected_time = None
+
+        if self.csv_file.tell() == 0:
+            self.csv_writer.writerow([
+                'ros_time',
+                'dcf_diff_s',
+                'arrival_diff_ms',
+                'rtk_diff_a_ms',
+                'rtk_diff_b_ms',
+                'rtk_delta_a_ms',
+                'rtk_delta_b_ms'
+            ])
+
+        self.get_logger().info(f'Logging comparison to {self.csv_path}')
+
+        self.last_a_time = None
+        self.last_b_time = None
+        self.last_a_ros = None
+        self.last_b_ros = None
+        self.last_a_age = None
+        self.last_b_age = None
+        
+    def destroy_node(self):
+        if self.csv_file:
+            self.csv_file.close()
+        super().destroy_node()       
+        
+    def status_check(self):
+        now = self.get_clock().now().nanoseconds / 1e9
+
+        if self.last_a_ros is None:
+            status_a = "NO DATA"
+        elif now - self.last_a_ros > 3.0:
+            status_a = "STALE"
+        else:
+            status_a = "OK"
+
+        if self.last_b_ros is None:
+            status_b = "NO DATA"
+        elif now - self.last_b_ros > 3.0:
+            status_b = "STALE"
+        else:
+            status_b = "OK"
+
+        self.get_logger().info(f"Board A: {status_a} | Board B: {status_b}")
+
+    def cb_a(self, msg):
+        parsed = parse_time(msg.data)
+        if parsed is None:
+            return
+
+        self.last_a_time = parsed["timestamp"]
+        self.last_a_age = parsed["age_from_lastdcf"]
+        self.last_a_raw = msg.data
+        self.last_a_ros = self.get_clock().now().nanoseconds / 1e9
+        self.last_a_rtk_diff = parsed["rtk_diff"]
+        self.last_a_rtk_delta = parsed["rtk_delta"]
+        self.compare()
+
+    def cb_b(self, msg):
+        parsed = parse_time(msg.data)
+        if parsed is None:
+            return
+
+        self.last_b_time = parsed["timestamp"]
+        self.last_b_age = parsed["age_from_lastdcf"]
+        self.last_b_raw = msg.data
+        self.last_b_ros = self.get_clock().now().nanoseconds / 1e9
+        self.last_b_rtk_diff = parsed["rtk_diff"]
+        self.last_b_rtk_delta = parsed["rtk_delta"]
+        self.compare()
+        
+
+    def compare(self):
+        if None in [self.last_a_time, self.last_b_time,
+                    self.last_a_ros, self.last_b_ros,
+                    self.last_a_age, self.last_b_age]:
+            return
+
+        dcf_diff = self.last_a_time - self.last_b_time
+        arrival_diff_ms = (self.last_a_ros - self.last_b_ros) * 1000.0
+
+        # Select board closer to its own LASTDCF
+        if self.last_a_age <= self.last_b_age:
+            selected_raw = self.last_a_raw
+            selected_time_key = self.last_a_time
+            source = "dcf_a"
+            verified_by = "dcf_b"
+            selected_age = self.last_a_age
+        else:
+            selected_raw = self.last_b_raw
+            selected_time_key = self.last_b_time
+            source = "dcf_b"
+            verified_by = "dcf_a"
+            selected_age = self.last_b_age
+
+        if selected_time_key == self.last_published_selected_time:
+            return
+
+        self.last_published_selected_time = selected_time_key
+
+        if abs(dcf_diff) <= 2:
+            status = "TRUSTED"
+        else:
+            status = "SELECTED_CLOSEST_LASTDCF"
+
+        selected_msg = String()
+
+        if selected_age > MAX_LASTDCF_AGE:
+            selected_msg.data = (
+                f"NO_TRUSTED_SYNC "
+                f"REASON=LASTDCF_TOO_OLD "
+                f"SELECTED_AGE={selected_age:.0f}s "
+                f"A={self.last_a_raw} "
+                f"B={self.last_b_raw}"
+            )
+        else:
+            selected_msg.data = (
+                f"DCF_SELECTED {selected_raw} "
+                f"SOURCE_TOPIC={source} "
+                f"VERIFIED_BY_TOPIC={verified_by} "
+                f"DIFF={dcf_diff:.0f}s "
+                f"LASTDCF_AGE={selected_age:.0f}s "
+                f"STATUS={status}"
+            )
+
+        self.selected_pub.publish(selected_msg)
+
+        now = self.get_clock().now().nanoseconds / 1e9
+        self.csv_writer.writerow([
+            now,
+            dcf_diff,
+            arrival_diff_ms,
+            self.last_a_rtk_diff,
+            self.last_b_rtk_diff,
+            self.last_a_rtk_delta,
+            self.last_b_rtk_delta
+        ])
+        self.csv_file.flush()
+
+        self.get_logger().info(
+            f"DCF diff: {dcf_diff:.0f} s | "
+            f"ROS arrival diff: {arrival_diff_ms:.2f} ms | "
+            f"selected={source} | "
+            f"LASTDCF age={selected_age:.0f}s | "
+            f"{status}"
+        )
+\end{lstlisting}
+
+\section{RTK PPS Analysis Script}
+\label{app:rtkAnalysis}
+
+\begin{lstlisting}[style=codeStyle, language=Python, caption={Python script for analyzing RTK PPS period and RTK difference statistics.}, label={lst:rtkAnalysis}]
+import csv
+import re
+import statistics
+import os
+
+CSV = "/home/nos/ros2_ws/dcf_log.csv"
+
+rtk_delta = []
+rtk_diff = []
+sync_samples = 0
+total_samples = 0
+
+pattern_delta = re.compile(r"RTK_DELTA=(-?\d+)ms")
+pattern_diff = re.compile(r"RTK_DIFF=(-?\d+)ms")
+
+def unwrap_diff(values):
+    if not values:
+        return []
+
+    unwrapped = [values[0]]
+
+    for v in values[1:]:
+        prev = unwrapped[-1]
+        candidate = v
+
+        while candidate - prev > 500:
+            candidate -= 1000
+
+        while candidate - prev < -500:
+            candidate += 1000
+
+        unwrapped.append(candidate)
+
+    return unwrapped
+\end{lstlisting}
+\chapter{Test Data and Results}
+\label{app:testData}
+
+This appendix contains supporting test data, terminal outputs, generated plots, and CSV log format examples used during the evaluation of the synchronization prototype. The main interpretation of these results is provided in Chapter~\ref{chap:testing}. The purpose of this appendix is to document the raw and generated evidence behind the measurement tables and plots.
+
+The included material covers RTK PPS analysis, two-board DCF77 comparison, ROS2 arrival-time behavior, and the structure of the logged CSV files. These outputs were generated from UART diagnostic messages transmitted by the STM32 synchronization module and processed by ROS2 nodes and Python analysis scripts.
+
+\section{Raw Terminal Outputs}
+\label{app:rawTerminalOutputs}
+
+During testing, the STM32 firmware transmitted synchronization diagnostic messages through UART. These messages were read by ROS2 serial nodes and printed to the terminal while also being stored in CSV log files.
+
+A typical synchronized UART message had the following format:
+
+\begin{verbatim}
+HH:MM:SS - DD.MM.20YY - PCB_01 - SYNC=1 - LASTDCF=DD.MM.20YY_HH:MM
+- RTK_PPS=N - RTK_DELTA=1000ms - RTK_DIFF=0ms
+\end{verbatim}
+
+The fields have the following meaning:
+\begin{itemize}
+    \item \texttt{HH:MM:SS} -- current STM32 software-clock time,
+    \item \texttt{DD.MM.20YY} -- current STM32 software-clock date,
+    \item \texttt{PCB\_01} -- board identifier,
+    \item \texttt{SYNC=1} -- valid synchronization state,
+    \item \texttt{LASTDCF} -- last valid DCF77 frame accepted by the firmware,
+    \item \texttt{RTK\_PPS} -- number of accepted RTK PPS events,
+    \item \texttt{RTK\_DELTA} -- measured interval between PPS events,
+    \item \texttt{RTK\_DIFF} -- firmware-level difference between PPS event and internal software-clock second.
+\end{itemize}
+
+These raw outputs were used as the input data for the ROS2 logging pipeline and the Python analysis scripts.
+
+\section{RTK PPS Analysis Output}
+\label{app:rtkPpsAnalysisOutput}
+
+The RTK PPS analysis was performed using the Python script shown in Code~\ref{lst:rtkAnalysis}. The script processed the logged UART diagnostic messages from the single-board RTK PPS experiment and extracted the \texttt{RTK\_DELTA} and \texttt{RTK\_DIFF} values.
+
+The terminal output of the final analysis run was:
+
+\begin{verbatim}
+=== Single PCB RTK PPS analysis ===
+Total UART samples: 1543
+DCF synchronized samples: 1543
+
+=== RTK PPS period ===
+Samples: 1543
+Average: 1005.65 ms
+Min: 999 ms
+Max: 1009 ms
+Std dev: 1.85 ms
+
+=== RTK PPS vs DCF software second ===
+Samples: 1542
+
+Wrapped RTK_DIFF:
+Average: 0.00 ms
+Min: 0 ms
+Max: 0 ms
+Std dev: 0.00 ms
+
+Unwrapped RTK_DIFF:
+Average: 0.00 ms
+Min: 0 ms
+Max: 0 ms
+Std dev: 0.00 ms
+First unwrapped diff: 0 ms
+Last unwrapped diff: 0 ms
+Net change: 0 ms
+Estimated drift: 0.000 ms/s
+
+=== Interpretation ===
+RTK PPS period is stable around 1 second.
+RTK_DIFF shows phase difference between RTK PPS and DCF-based software second.
+RTK PPS-driven clock is phase-aligned with the internal clock.
+\end{verbatim}
+
+This output confirms that all recorded UART samples were synchronized and that the final firmware generated the software-clock seconds directly from accepted RTK PPS events. The measured \texttt{RTK\_DIFF} remained equal to 0 ms for all synchronized samples, which indicates no observable drift at the implemented millisecond-level measurement resolution.
+
+\section{Two-Board Comparison Output}
+\label{app:twoBoardComparisonOutput}
+
+The two-board comparison was performed using the ROS2 comparison node shown in Code~\ref{lst:rosCompareNode}. Two independent STM32 synchronization boards transmitted UART diagnostic messages through separate CP2102 USB-UART bridges. The ROS2 system published these streams to separate topics and compared the reported software-clock times.
+
+The comparison output contained two main values:
+\begin{itemize}
+    \item \texttt{dcf\_diff\_s} -- logical time difference between board A and board B,
+    \item \texttt{arrival\_diff\_ms} -- difference between ROS2 message arrival times.
+\end{itemize}
+
+The logical DCF difference was used to evaluate whether both boards reported comparable synchronized time. The ROS2 arrival-time difference was used only to evaluate the communication and logging pipeline.
+
+A typical comparison message had the following form:
+\begin{verbatim}
+DCF diff: 0 s | ROS arrival diff: 24.53 ms
+\end{verbatim}
+The logged comparison data were later processed to generate the DCF logical difference plots and ROS2 arrival-time plot shown in Section~\ref{app:generatedPlots}. The results showed that most DCF logical differences were close to zero during stable operation. Larger temporary differences were interpreted as synchronization transitions, missed updates, or minute-boundary effects.
+
+The ROS2 arrival-time difference showed larger variation than the logical DCF difference. This was expected because message arrival time depends on UART buffering, USB-UART conversion, operating-system scheduling, WSL behavior, and ROS2 middleware processing. Therefore, the arrival-time difference was not used as a direct measure of hardware synchronization accuracy.
+
+\section{Generated Plots}
+\label{app:generatedPlots}
+
+The Python analysis scripts generated plots for RTK PPS behavior, RTK difference, two-board DCF77 logical difference, and ROS2 arrival-time behavior. These plots support the interpretation presented in Chapter~\ref{chap:testing}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\textwidth]{fig/photos/final_rtk_delta.png}
+  \caption{Measured RTK PPS period over time. The PPS period remained close to one second, with visible variation caused by millisecond-level firmware and logging resolution.}
+  \label{fig:finalRtkDelta}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\textwidth]{fig/photos/final_rtk_diff.png}
+  \caption{RTK PPS difference over time. The measured \texttt{RTK\_DIFF} remained equal to 0 ms during synchronized operation.}
+  \label{fig:finalRtkDiff}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\textwidth]{fig/photos/final_rtk_diff_hist.png}
+  \caption{Histogram of RTK PPS difference values. All synchronized samples were concentrated at 0 ms.}
+  \label{fig:finalRtkDiffHist}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\textwidth]{fig/photos/DCF diff over time.png}
+  \caption{Logical DCF77 time difference between two synchronization boards over time. Most samples remain close to zero, while temporary larger differences correspond to synchronization transitions or minute-boundary effects.}
+  \label{fig:dcfDiffOverTime}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\textwidth]{fig/photos/DCF diff histogram.png}
+  \caption{Histogram of logical DCF77 time differences between two synchronization boards. The distribution shows that most samples are concentrated near zero during stable operation.}
+  \label{fig:dcfDiffHistogram}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\textwidth]{fig/photos/ROS arrival diff over time.png}
+  \caption{ROS2 arrival-time difference between two UART synchronization streams. The larger variations show communication and operating-system timing effects, not direct STM32 clock drift.}
+  \label{fig:rosArrivalDiffOverTime}
+\end{figure}
+
+\section{CSV Log Format}
+\label{app:csvLogFormat}
+
+The ROS2 evaluation pipeline stored received synchronization messages in CSV files so that the data could be processed later by Python analysis scripts. Two main log files were used during testing: one for raw single-board UART messages and one for two-board comparison results.
+
+The single-board serial log stored the ROS2 arrival timestamp together with the raw UART line received from the STM32 firmware. Its structure was:
+
+\begin{verbatim}
+ros_time_sec,ros_time_nsec,raw_line
+\end{verbatim}
+
+A typical row had the form:
+
+\begin{verbatim}
+1770000000,123456789,12:53:01 - 09.05.2026 - PCB_01 - SYNC=1
+- LASTDCF=09.05.2026_12:53 - RTK_PPS=1543 - RTK_DELTA=1000ms
+- RTK_DIFF=0ms
+\end{verbatim}
+
+The \texttt{raw\_line} field was parsed by the analysis script to extract synchronization state, RTK PPS period, and RTK difference values.
+
+For two-board tests, the comparison node stored computed differences between the two received synchronization streams. The comparison CSV contained fields such as:
+
+\begin{verbatim}
+ros_time,dcf_diff_s,arrival_diff_ms,selected_source,selected_age
+\end{verbatim}
+
+The \texttt{dcf\_diff\_s} field represented the logical time difference between the two STM32 software clocks, while \texttt{arrival\_diff\_ms} represented the difference between ROS2 message arrival times. The first value was used to evaluate synchronization consistency between boards, while the second value was used to analyze the communication and logging pipeline.
+
+This CSV-based format made the evaluation reproducible. The same logged files could be reprocessed to generate statistical summaries, RTK PPS plots, DCF77 comparison plots, and ROS2 arrival-time plots.
+
+\end{document}

@@ -1,0 +1,95 @@
+%!TEX root = ../main.tex
+
+\chapter{Firmware Implementation\label{chap:firmwareImplementation}}
+
+This chapter describes the firmware developed for the STM32F042F6P6 microcontroller. The firmware implements the main synchronization logic of the prototype, including DCF77 frame decoding, parity validation, software real-time clock maintenance, RTK PPS event processing, and UART diagnostic output for the ROS2 evaluation pipeline.
+
+The firmware architecture separates time-critical synchronization tasks from non-time-critical communication tasks. DCF77 and RTK PPS signal edges are handled through external interrupt callbacks, while longer operations such as UART transmission are deferred to the main loop using a pending output flag. This design reduces the influence of diagnostic communication on the local timing behavior.
+
+The implementation follows the final system architecture described in the previous chapters. DCF77 provides absolute calendar time, RTK PPS provides the stable one-second reference, and UART/ROS2 are used only for monitoring, logging, and post-processing. Selected firmware and ROS2 code listings are provided in Appendix~\ref{app:firmwareCode}.
+
+\section{Firmware Structure}
+
+The firmware is organized around a simple interrupt-driven architecture. Time-critical signal events are detected using STM32 external interrupt callbacks, while non-time-critical tasks such as UART transmission and diagnostic reporting are handled in the main loop. This structure keeps the synchronization path independent from communication delays.
+\\
+The main firmware components are:
+\begin{itemize}
+    \item DCF77 edge processing and pulse-width measurement,
+    \item DCF77 frame decoding and parity validation,
+    \item software real-time clock maintenance,
+    \item RTK PPS event handling,
+    \item UART diagnostic message generation,
+    \item timeout and synchronization-state monitoring.
+\end{itemize}
+
+The firmware uses TIM2 as a free-running millisecond counter. This timer is used to measure DCF77 pulse widths, detect the DCF77 minute marker, and support fallback timing before RTK PPS-driven operation begins. After a valid DCF77 frame initializes the software clock, RTK PPS events become the main source of one-second clock increments.
+
+The software real-time clock stores seconds, minutes, hours, day, month, and year. Calendar rollover and leap-year handling are implemented directly in firmware, as shown in Code~\ref{lst:softwareRtc}. DCF77 frame decoding and validation are shown in Code~\ref{lst:dcfDecoding}.
+
+UART output is generated as a diagnostic message containing the current synchronized time, synchronization state, last valid DCF77 frame, RTK PPS counter, PPS period, and RTK difference. The diagnostic string generation is shown in Code~\ref{lst:uartDiagnostics}. The main loop and deferred UART transmission logic are shown in Code~\ref{lst:mainLoop}.
+
+\section{Time Synchronization Algorithm}
+
+The implemented synchronization algorithm combines DCF77 absolute time decoding with RTK PPS-driven second generation. The purpose of the algorithm is to initialize the local software clock from a validated DCF77 frame and then maintain stable one-second increments using the RTK PPS signal.
+
+The first stage of the algorithm processes the DCF77 input signal. Both rising and falling edges are detected using external interrupts. The firmware measures the pulse width between edges and classifies the received bit as logical zero or logical one. A pulse width of approximately 100 ms represents logical zero, while a pulse width of approximately 200 ms represents logical one. The longer missing-pulse interval is used to detect the start of a new DCF77 minute frame \cite{ptbDcf77}.
+
+After 59 bits are collected, the firmware validates the received DCF77 frame. The validation includes parity checks for the minute, hour, and date sections, followed by plausibility checks for decoded values such as minute, hour, day, month, and year. The DCF77 decoding and validation functions are shown in Code~\ref{lst:dcfDecoding}.
+
+When the first valid DCF77 frame is received, the decoded absolute time is applied to the software real-time clock. The clock is initialized with minutes, hours, day, month, and year values, while seconds are set to zero at the detected minute boundary. The software RTC implementation is shown in Code~\ref{lst:softwareRtc}.
+
+After successful DCF77 synchronization, the firmware enables RTK PPS-driven clock operation. In this mode, the software clock is incremented only when a valid RTK PPS rising edge is detected. The PPS interval is checked to verify that it is close to one second before it is accepted. This prevents long-term drift that would occur if the clock depended only on the free-running STM32 timer.
+\\
+The complete synchronization sequence can be summarized as follows:
+\begin{enumerate}
+    \item detect DCF77 edges using external interrupts,
+    \item measure DCF77 pulse widths using TIM2,
+    \item collect a complete 59-bit DCF77 frame,
+    \item validate parity and decoded time values,
+    \item initialize the software RTC from the valid DCF77 frame,
+    \item enable RTK PPS-based second generation,
+    \item increment the software RTC on each accepted PPS event,
+    \item transmit synchronization diagnostics through UART.
+\end{enumerate}
+
+The DCF77 synchronization and correction functions are shown in Code~\ref{lst:dcfClockSync}. The external interrupt callback that handles both DCF77 edge processing and RTK PPS events is shown in Code~\ref{lst:extiCallback}.
+
+\section{Interrupt and Timer Configuration}
+
+The firmware uses external interrupts and TIM2 to process the DCF77 and RTK PPS timing signals. This configuration allows the STM32 to react to signal edges while using a free-running timer to measure pulse widths and time intervals.
+
+TIM2 is configured as the main timing counter. In the final firmware, the STM32 runs from the 8 MHz internal HSI clock, and TIM2 uses a prescaler value of $8000 - 1$. This gives a timer counting frequency of 1 kHz and a timing resolution of 1 ms. This resolution is sufficient for DCF77 decoding because the signal uses pulse widths of approximately 100 ms and 200 ms.
+
+The DCF77 input is connected to an external interrupt line configured for both rising and falling edges. Rising-edge intervals are used to detect the DCF77 second spacing and the longer minute marker. Falling edges are used together with the previous rising edge to measure the pulse width and determine whether the received bit is logical zero or one.
+
+The RTK PPS input is connected to a separate external interrupt line configured for rising-edge detection. After the software clock has been initialized from a valid DCF77 frame, accepted PPS events are used to increment the software RTC by one second. The firmware also measures the PPS interval and rejects unrealistic intervals so that false or unstable PPS events do not directly corrupt the clock.
+
+The interrupt callback performs only timing-related operations and flag updates. UART transmission is deferred to the main loop using a pending flag. This keeps communication tasks separated from timing-sensitive interrupt processing. The interrupt-based DCF77 and RTK PPS handling is shown in Code~\ref{lst:extiCallback}, while the main loop and deferred UART transmission are shown in Code~\ref{lst:mainLoop}.
+
+\section{RTK and PPS Data Handling}
+
+The final firmware uses the RTK receiver primarily as a source of the PPS timing signal. Full GNSS navigation messages, RTK correction data, and GNSS time messages are not decoded by the STM32 firmware. Instead, the RTK PPS output is treated as an external one-second reference used to stabilize the local software clock after DCF77 synchronization.
+
+The PPS input is processed through an external interrupt configured for rising-edge detection. When a PPS edge is detected, the firmware measures the interval from the previous PPS event. If the measured interval is close to one second, the PPS event is accepted as valid. Invalid or unrealistic intervals are ignored or used only to reset the PPS timing state.
+
+After the software clock has been initialized from a valid DCF77 frame, each accepted PPS event increments the software RTC by one second. The firmware also updates diagnostic variables such as the PPS counter, measured PPS period, and RTK difference value. These values are included in the UART diagnostic output and later analyzed in the ROS2 evaluation pipeline.
+
+The measured RTK difference represents the firmware-level phase relationship between the PPS event and the internal software-clock second at millisecond-level resolution. It is used as a diagnostic value for verifying that the final implementation generates seconds directly from PPS interrupts. It should not be interpreted as a direct nanosecond-level or sub-microsecond PPS accuracy measurement.
+
+The RTK PPS processing logic is part of the external interrupt callback shown in Code~\ref{lst:extiCallback}. The diagnostic message containing RTK PPS values is generated by the UART formatting function shown in Code~\ref{lst:uartDiagnostics}.
+
+\section{Communication Protocols}
+
+The firmware uses UART as the final communication protocol between the STM32 synchronization module and the companion-computer environment. During validation, the STM32 UART output was connected to the computer through a CP2102 USB-UART bridge \cite{cp2102Datasheet}. This path replaced native STM32 USB communication, which was tested during development but was not reliable on the prototype hardware.
+
+The communication protocol is intentionally simple and text based. Each transmitted line contains the current software-clock time, date, PCB identifier, synchronization state, last valid DCF77 frame, RTK PPS counter, measured PPS period, and RTK difference. This format makes the output easy to inspect manually in a serial terminal and easy to parse automatically in ROS2.
+\\
+A typical synchronized message has the following structure:
+\begin{verbatim}
+HH:MM:SS - DD.MM.20YY - PCB_01 - SYNC=1 - LASTDCF=DD.MM.20YY_HH:MM
+- RTK_PPS=N - RTK_DELTA=1000ms - RTK_DIFF=0ms
+\end{verbatim}
+
+UART transmission is not used as a synchronization source. It is only a diagnostic and logging interface. The local software clock is disciplined by DCF77 and RTK PPS events, while UART transfers the resulting synchronization state to the computer for monitoring and analysis.
+
+On the ROS2 side, the serial node reads each UART line, publishes it to a ROS2 topic, and stores it in a CSV log file. The ROS2 logging pipeline was implemented using ROS2 publisher and node concepts \cite{ros2Docs}. The ROS2 serial reader implementation is shown in Code~\ref{lst:rosSerialNode}. The comparison node used for two-board experiments is shown in Code~\ref{lst:rosCompareNode}.

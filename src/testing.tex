@@ -1,0 +1,175 @@
+%!TEX root = ../main.tex
+
+\chapter{Testing and Evaluation\label{chap:testing}}
+
+This chapter evaluates the implemented synchronization prototype and verifies whether the final system behavior matches the design objectives defined in the previous chapters. The evaluation focuses on DCF77 synchronization, RTK PPS-driven second generation, UART communication reliability, ROS2 logging, and comparison of timing data collected from one or two synchronization boards.
+
+The purpose of the testing was not to prove sub-microsecond synchronization accuracy. The final measurement pipeline used STM32 firmware diagnostics, UART transmission through a CP2102 USB-UART bridge, ROS2 nodes, CSV logs, and Python analysis scripts. Therefore, the results provide millisecond-level visibility into synchronization behavior and are used to verify stable PPS-driven operation, DCF77-based absolute time acquisition, and elimination of observable long-term software-clock drift.
+
+The evaluation is divided into several parts. First, the measurement setup is described. Then, single-board DCF77 synchronization and RTK PPS operation are evaluated. Two-board comparison experiments are used to analyze logical synchronization consistency between independent boards. Finally, ROS2 arrival-time behavior, communication reliability, measurement limitations, and the overall results are summarized.
+
+The supporting raw outputs, generated plots, and CSV log structure are provided in Appendix~\ref{app:testData}.
+
+\section{Measurement Setup}
+
+The measurement setup was designed to evaluate the synchronization behavior of the STM32 prototype under laboratory conditions. The setup consisted of the custom synchronization PCB, a DCF77 receiver, an RTK PPS source, a CP2102 USB-UART bridge, and a ROS2-based logging environment running on the companion-computer side.
+
+The STM32 firmware received the DCF77 signal and RTK PPS signal through external interrupt inputs. The DCF77 signal was used to acquire absolute calendar time, while the RTK PPS signal was used as the stable one-second event after synchronization. The firmware generated diagnostic messages containing the current software-clock time, synchronization state, last valid DCF77 frame, RTK PPS counter, PPS period, and RTK difference.
+
+The diagnostic messages were transmitted through UART and converted to USB using the CP2102 bridge \cite{cp2102Datasheet}. On the computer side, ROS2 nodes read the serial stream, published the received messages to ROS2 topics, and stored the raw data in CSV log files for later analysis \cite{ros2Docs}. The Python analysis scripts then processed these logs to compute PPS period statistics, RTK difference values, two-board time differences, and ROS2 arrival-time differences.
+\\
+The measurement setup can be summarized as follows:
+\begin{itemize}
+    \item STM32 synchronization PCB with DCF77 and RTK PPS inputs,
+    \item DCF77 receiver for absolute time synchronization,
+    \item RTK receiver PPS output used as a stable one-second reference,
+    \item CP2102 USB-UART bridge for communication with the computer,
+    \item ROS2 serial reader nodes for topic publication and CSV logging,
+    \item Python analysis scripts for statistical evaluation and plot generation.
+\end{itemize}
+
+The evaluation was performed using firmware-level and ROS2-level measurements. This means that the results show synchronization behavior at millisecond-level visibility. Direct sub-microsecond timing measurement was not performed, because the setup did not use hardware timer input capture or an external timing instrument such as an oscilloscope or time interval counter. The CSV structure used for logging is documented in Appendix~\ref{app:csvLogFormat}.
+
+\section{Single-Board DCF77 Synchronization Test}
+
+The first test verified that one synchronization PCB can receive, decode, and validate the DCF77 time signal. The purpose of this test was to confirm that the firmware can obtain absolute calendar time before RTK PPS-driven second generation is enabled.
+
+The DCF77 receiver output was connected to the STM32 external interrupt input. The firmware measured rising and falling edges of the signal using TIM2-based timing. Pulse widths of approximately 100 ms were interpreted as logical zero, while pulse widths of approximately 200 ms were interpreted as logical one. The longer missing-pulse interval was used to detect the beginning of a new minute frame \cite{ptbDcf77}.
+
+After a complete 59-bit DCF77 frame was collected, the firmware performed parity validation for the minute, hour, and date sections. The decoded values were also checked for plausibility, including valid minute, hour, day, month, and year ranges. Invalid frames, parity failures, and impossible date jumps were rejected to prevent corruption of the software clock.
+
+After the first valid DCF77 frame was accepted, the software real-time clock was initialized with the decoded date and time. The synchronization state was then reported through the UART diagnostic output using the \texttt{SYNC=1} field. The last valid DCF77 synchronization frame was also included in the diagnostic message using the \texttt{LASTDCF} field.
+\\
+A typical synchronized output message had the following form:
+\begin{verbatim}
+HH:MM:SS - DD.MM.20YY - PCB_01 - SYNC=1 - LASTDCF=DD.MM.20YY_HH:MM
+- RTK_PPS=N - RTK_DELTA=1000ms - RTK_DIFF=0ms
+\end{verbatim}
+The test confirmed that the DCF77 signal can be used as the absolute time source for the prototype. The DCF77 synchronization was sensitive to receiver position and radio-signal quality, but under suitable reception conditions the firmware successfully decoded valid frames and initialized the software clock. This result verified the first stage of the synchronization pipeline: absolute time acquisition from DCF77 before RTK PPS-based second generation.
+
+\section{RTK PPS Synchronization Evaluation}
+
+The RTK PPS synchronization test evaluated whether the software real-time clock could be driven directly by the RTK receiver PPS signal after a valid DCF77 synchronization. The purpose of this test was to verify that the internal software clock no longer accumulated observable drift from the free-running STM32 timer.
+
+Two firmware approaches were compared during development. In the first approach, the internal software clock was advanced using local timer timing. This showed measurable drift over time because the local oscillator and software timing were not perfectly aligned with the external PPS reference. In the final approach, the software clock seconds were generated directly from accepted RTK PPS interrupt events.
+
+During the final test, the STM32 received the RTK PPS signal on the dedicated PPS interrupt input. Each accepted PPS event incremented the software real-time clock by one second. The firmware also measured the PPS period and computed the diagnostic value \texttt{RTK\_DIFF}, which represents the firmware-level phase difference between the RTK PPS event and the internal software-clock second.
+
+The logged UART messages were processed using the Python analysis script shown in Code~\ref{lst:rtkAnalysis}. The measured RTK PPS period statistics are summarized in Table~\ref{tab:rtkPpsPeriod}. The full terminal output of the RTK PPS analysis is provided in Appendix~\ref{app:rtkPpsAnalysisOutput}.
+
+\begin{table}[H]
+\centering
+\caption{RTK PPS period stability}
+\label{tab:rtkPpsPeriod}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Parameter} & \textbf{Value} \\
+\hline
+Samples & 1543 \\
+Average PPS period & 1005.65 ms \\
+Minimum PPS period & 999 ms \\
+Maximum PPS period & 1009 ms \\
+Standard deviation & 1.85 ms \\
+\hline
+\end{tabular}
+\end{table}
+
+The measured PPS period remained close to one second. The measured average value of 1005.65 ms should not be interpreted as the true electrical PPS period of the RTK receiver. The value is obtained from firmware-level diagnostics and UART/ROS2 logging with millisecond-level timing visibility. It therefore includes software timing, interrupt handling, message generation, and logging effects. The important result is not the absolute measured period value itself, but the fact that accepted PPS events remained within the firmware validation window and that the internal software-clock difference remained at \texttt{RTK\_DIFF} = 0 ms. The corresponding PPS period plot is shown in Fig.~\ref{fig:finalRtkDelta}.
+
+The RTK PPS to internal-clock difference statistics are shown in Table~\ref{tab:rtkDiffStats}.
+\begin{table}[H]
+\centering
+\caption{RTK PPS synchronization diagnostic result}
+\label{tab:rtkDiffStats}
+\begin{tabular}{ll}
+\hline
+Parameter & Value \\
+\hline
+Analyzed synchronized samples & 1542 \\
+Timer/diagnostic resolution & 1 ms \\
+Observed \texttt{RTK\_DIFF} range & 0 ms to 0 ms \\
+Mean observed \texttt{RTK\_DIFF} & 0.00 ms \\
+Standard deviation of observed \texttt{RTK\_DIFF} & 0.00 ms \\
+Net observed drift & 0 ms \\
+Estimated drift at measurement resolution & 0.000 ms/s \\
+Interpretation & No observable phase drift at 1 ms resolution \\
+\hline
+\end{tabular}
+\end{table}
+The zero-valued \texttt{RTK\_DIFF} result does not mean that the physical PPS signal has zero jitter. It means that, in the final firmware architecture, the software real-time clock second is generated directly from the accepted RTK PPS interrupt. Therefore, no phase difference was observable with the implemented 1 ms firmware diagnostic resolution. A non-zero sub-millisecond error could only be evaluated using timer input capture or an external timing instrument.
+
+The final implementation kept \texttt{RTK\_DIFF} equal to 0 ms for all synchronized samples. This means that, at the available millisecond-level measurement resolution, the software-clock second remained aligned with the RTK PPS event. The RTK difference over time and its histogram are shown in Fig.~\ref{fig:finalRtkDiff} and Fig.~\ref{fig:finalRtkDiffHist}.
+
+The result confirms that the final PPS-driven implementation eliminated the observable long-term drift that occurred when the software clock relied only on local timer timing. However, this result should not be interpreted as proof of sub-microsecond synchronization accuracy. It demonstrates stable PPS-driven second generation at the resolution of the implemented firmware and ROS2 logging pipeline.
+
+\section{Two-Board Synchronization Comparison}
+
+A two-board comparison test was performed to evaluate whether two independent synchronization PCBs could produce comparable synchronized time outputs. Each board received its own synchronization input and transmitted UART diagnostic messages to the ROS2 environment through a separate CP2102 USB-UART bridge.
+
+The ROS2 setup used two serial reader nodes. One node published the first board output to the \texttt{/dcf\_a} topic, while the second node published the second board output to the \texttt{/dcf\_b} topic. A comparison node subscribed to both topics, parsed the received synchronization messages, and computed the logical time difference between the two reported DCF77-based software clocks. The ROS2 comparison node is shown in Code~\ref{lst:rosCompareNode}.
+\\
+The main evaluated value was the DCF logical difference:
+\begin{equation}
+\Delta t_{DCF} = t_{A} - t_{B},
+\end{equation}
+where $t_A$ and $t_B$ represent the synchronized software-clock times reported by board A and board B. In addition, the ROS2 arrival-time difference was recorded to evaluate the behavior of the communication and logging pipeline.
+
+The two-board comparison is important because it separates two effects. The DCF logical difference shows whether the two STM32 boards report consistent synchronized time. The ROS2 arrival-time difference shows when the messages were received by the computer, which can be affected by UART buffering, operating-system scheduling, and ROS2 processing delay. An example of the two-board comparison output is provided in Appendix~\ref{app:twoBoardComparisonOutput}.
+
+The generated DCF logical difference plots are shown in Fig.~\ref{fig:dcfDiffOverTime} and Fig.~\ref{fig:dcfDiffHistogram}. Most samples were concentrated close to zero difference, indicating that the two boards maintained comparable DCF-based software time during stable operation. Larger temporary differences occurred mainly during synchronization transitions, missed updates, or minute-boundary effects.
+
+This test confirmed that the synchronization architecture can be extended from a single board to multiple boards in the ROS2 evaluation environment. However, the test should be interpreted as a laboratory two-board comparison, not as a full UAV swarm validation. Larger multi-node and flight-based tests remain future work.
+
+\section{ROS2 Logging and Arrival-Time Analysis}
+
+ROS2 was used as the logging and evaluation layer for the synchronization prototype. The STM32 firmware generated synchronization diagnostic messages locally, and the ROS2 serial nodes received these messages through UART and CP2102 USB-UART bridges. Each received message was published to a ROS2 topic and stored in a CSV file together with the ROS2 arrival timestamp \cite{ros2Docs}.
+
+The ROS2 arrival timestamp is different from the synchronized time reported by the STM32. The STM32 time is generated from DCF77 and RTK PPS events inside the microcontroller firmware. The ROS2 arrival timestamp only represents when the diagnostic message reached the computer and was processed by the ROS2 node. Therefore, ROS2 arrival time is useful for communication analysis, but it is not used as the clock synchronization reference.
+\\
+For two-board experiments, the arrival-time difference was computed as
+\begin{equation}
+\Delta t_{ROS} = t_{ROS,A} - t_{ROS,B},
+\end{equation}
+where $t_{ROS,A}$ and $t_{ROS,B}$ are the ROS2 arrival timestamps of messages from board A and board B. This value describes the relative arrival behavior of the two UART/ROS2 streams, not the physical synchronization accuracy of the boards.
+
+The ROS2 arrival-time plot is shown in Fig.~\ref{fig:rosArrivalDiffOverTime}. The plot contains larger variations than the firmware-level RTK difference because it includes UART buffering, USB-UART conversion, operating-system scheduling, and ROS2 middleware processing. These effects explain why ROS2 arrival-time difference must not be interpreted as direct synchronization error.
+
+The ROS2 logging pipeline was still useful because it provided repeatable data collection, topic-based monitoring, CSV storage, and post-processing with Python scripts. It allowed both single-board and two-board synchronization behavior to be evaluated without changing the embedded firmware. The generated evaluation plots are collected in Appendix~\ref{app:generatedPlots}.
+
+\section{Communication Reliability}
+
+Communication reliability was evaluated to verify that synchronization diagnostics could be transferred from the STM32 module to the ROS2 environment without interrupting the timing logic. The final communication path used STM32 UART output connected to a CP2102 USB-UART bridge and then read by ROS2 serial nodes on the computer side \cite{cp2102Datasheet,ros2Docs}.
+
+During development, native USB communication on the STM32F042 prototype was tested but proved unreliable. Problems were observed around USB clock configuration, HSI48 operation, and USB enumeration. Because of this, the final validated system used UART through the external CP2102 bridge. This provided a simpler and more stable communication path for laboratory testing.
+
+The UART messages were transmitted as human-readable text lines. This made the communication easy to debug using a serial terminal and easy to parse in ROS2. The same output format was used for both single-board tests and two-board comparison experiments.
+
+Communication was intentionally separated from the synchronization mechanism. UART transmission did not define the local clock and was not used to discipline the software RTC. Instead, the STM32 clock was driven by DCF77 and RTK PPS timing events, while UART only reported the resulting state. This ensured that temporary communication delays or ROS2 processing jitter did not directly affect the internal synchronization process.
+
+The final UART-based pipeline demonstrated reliable long-term transfer of synchronization diagnostics during the performed tests. Remaining communication limitations are mainly related to the non-real-time nature of UART, USB buffering, operating-system scheduling, and ROS2 message handling. These limitations affect logging latency, but not the local STM32 timing source. Examples of raw UART terminal output are provided in Appendix~\ref{app:rawTerminalOutputs}.
+
+\section{Limitations of the Measurement Method}
+
+The measurement method used in this thesis is sufficient to verify the functional behavior of the synchronization prototype, but it has important limitations. The evaluation was based on firmware diagnostic values, UART communication, ROS2 logging, CSV files, and Python analysis scripts. This provides millisecond-level visibility into the system behavior, but it does not provide direct hardware-level timestamping.
+
+The main limitation is the timing resolution of the implemented measurement path. The STM32 firmware used TIM2 with a 1 ms resolution for the relevant diagnostics, and the logged values were transmitted through UART to the ROS2 environment. Therefore, values such as \texttt{RTK\_DIFF = 0 ms} mean that no difference was observable at the implemented millisecond-level resolution. They do not prove nanosecond-level or sub-microsecond synchronization accuracy.
+
+Another limitation is the non-real-time nature of the logging path. UART buffering, CP2102 USB-UART conversion, operating-system scheduling, WSL behavior, and ROS2 middleware processing can all influence message arrival time. For this reason, ROS2 arrival-time differences are useful for evaluating the communication and logging pipeline, but they cannot be interpreted as direct hardware synchronization error.
+
+The DCF77 signal also introduces practical limitations. Its reception quality depends on antenna position, electromagnetic noise, indoor reception conditions, and radio-signal stability. Invalid frames, parity failures, or missed minute markers can temporarily affect synchronization availability. The firmware reduces this risk by validating parity and rejecting impossible decoded values, but the quality of the input signal remains an external factor.
+
+Finally, the tests were performed in a laboratory and ROS2-based environment rather than during complete UAV flight operation. Effects such as motor noise, vibration, airflow, battery-voltage variation, and onboard electromagnetic interference were not fully characterized. A more precise evaluation would require hardware timer input capture, oscilloscope or timing-analyzer measurements, and testing on a complete UAV platform.
+
+For these reasons, the results should be interpreted as validation of stable DCF77-based time acquisition, RTK PPS-driven second generation, reliable UART/ROS2 logging, and elimination of observable long-term software-clock drift at millisecond-level measurement resolution.
+
+\section{Evaluation Summary}
+
+The evaluation confirmed that the implemented synchronization prototype achieved the main practical goals of the thesis. The STM32 firmware successfully decoded and validated DCF77 frames, initialized a software real-time clock from absolute calendar time, and then used the RTK PPS signal as the stable one-second event for clock generation.
+
+The RTK PPS evaluation showed that the final PPS-driven firmware eliminated the observable long-term drift that was present when the software clock relied only on local timer timing. During the final measurement, the reported \texttt{RTK\_DIFF} remained equal to 0 ms for all synchronized samples, and the estimated drift was 0.000 ms/s at the available millisecond-level measurement resolution.
+
+The two-board comparison demonstrated that multiple synchronization boards can be observed and compared in the ROS2 evaluation environment. The DCF logical difference plots showed that the boards reported comparable synchronized time during stable operation, while temporary larger differences were mainly associated with synchronization transitions, missed updates, or minute-boundary effects.
+
+The UART/ROS2 communication pipeline also proved suitable for laboratory validation. The CP2102-based UART path provided reliable diagnostic transfer after native STM32 USB communication was found to be unstable on the prototype hardware. ROS2 enabled topic publication, CSV logging, and post-processing without being used as the actual synchronization source.
+
+Overall, the final system should be understood as a functional prototype of a DCF77 and RTK PPS-based synchronization module. It demonstrates absolute time acquisition, PPS-driven second generation, stable diagnostic communication, and ROS2-based evaluation. The results do not prove sub-microsecond synchronization accuracy, but they verify correct system behavior and no observable long-term software-clock drift at millisecond-level resolution.
