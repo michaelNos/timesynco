@@ -17,7 +17,14 @@ The thesis also documented multiple practical implementation challenges, includi
 \\
 The final architecture demonstrated:
 
-\begin{itemize} \item successful DCF77 time decoding and validation, \item software RTC implementation on STM32, \item external PPS-based clock discipline, \item ROS2-based timing comparison infrastructure, \item hardware-level synchronization validation, \item stable long-term synchronized operation. \end{itemize}
+\begin{itemize} 
+\item successful DCF77 time decoding and validation, 
+\item software RTC implementation on STM32, 
+\item external PPS-based clock discipline, 
+\item ROS2-based timing comparison infrastructure, 
+\item logic-analyzer-based hardware-level PPS-to-GPIO synchronization validation,
+\item stable long-term synchronized operation. 
+\end{itemize}
 
 Possible future improvements include:
 
@@ -37,17 +44,17 @@ The ROS2 integration provided serial data reception, topic publication, CSV logg
 
 The final RTK PPS evaluation showed that the software-clock second generation remained aligned with the PPS event at millisecond-level measurement resolution. The measured \texttt{RTK\_DIFF} remained equal to 0 ms for all synchronized samples, and the estimated drift was 0.000 ms/s. This confirms that the final PPS-driven implementation eliminated the observable long-term drift of the previous local-timer-based approach.
 
-The achieved result is therefore not a proof of sub-microsecond synchronization accuracy, but a validated functional prototype demonstrating DCF77-based absolute time synchronization, RTK PPS-driven clock generation, stable UART communication, and ROS2-based evaluation.
+The achieved result is therefore not a proof of absolute sub-microsecond synchronization accuracy, but a validated functional prototype demonstrating DCF77-based absolute time synchronization, RTK PPS-driven clock generation, stable UART communication, ROS2-based evaluation, and practical hardware-level PPS-to-GPIO synchronization validation. The physical measurement confirmed typical sub-millisecond response during normal operation, while also showing that the practical precision is limited mainly by interrupt latency, HAL processing overhead, GPIO switching delay, and occasional latency spikes.
 
 \section{Future Work}
 
-Several improvements can be made in future revisions of the synchronization system. The most important direction is direct hardware-level timing measurement. The current prototype evaluates synchronization behavior using firmware diagnostics, UART messages, ROS2 logs, and millisecond-level timing visibility. Future work should use STM32 timer input capture, an oscilloscope, or a dedicated time interval counter to measure PPS timing with microsecond or sub-microsecond resolution.
+Several improvements can be made in future revisions of the synchronization system. The most important direction is more precise hardware-level timing measurement and synchronization implementation. The current prototype already includes a logic-analyzer-based PPS-to-GPIO measurement, but future work should use STM32 timer input capture, an oscilloscope, or a dedicated time interval counter to measure PPS timing with higher precision and to separate physical signal timing from interrupt and firmware execution delays.
 
 The firmware can also be extended to decode GNSS time messages directly from the RTK receiver. In the current implementation, absolute calendar time is obtained from DCF77 and the RTK receiver is used mainly through its PPS output. Direct GNSS time decoding would allow the system to obtain both absolute time and PPS timing from the GNSS receiver, while DCF77 could remain as a backup reference.
 
 Another improvement is a more advanced clock-discipline algorithm. The current implementation increments the software real-time clock directly from accepted PPS events. Future versions could estimate oscillator skew, compensate timer drift between PPS events, and provide higher-resolution timestamps inside each second.
 
-The hardware can also be improved. Future PCB revisions should consider connecting the PPS signal to a timer input-capture channel, replacing the AMS1117 regulator with a more efficient low-quiescent-current regulator or switching converter, and improving protection and filtering on external timing inputs. Additional testing of signal integrity, power integrity, and electromagnetic robustness should be performed under UAV-like conditions.
+The hardware can also be improved. Future PCB revisions should consider connecting the PPS signal to a timer input-capture channel, replacing the AMS1117 regulator with a more efficient low-quiescent-current regulator or switching converter, and improving protection and filtering on external timing inputs. Additional testing of signal integrity, power integrity, and electromagnetic robustness should be performed under UAV-like conditions. A hardware output-compare or timer-triggered GPIO mechanism should also be considered so that the synchronization output is generated by hardware rather than by software interrupt execution.
 
 Finally, the system should be validated in a complete UAV platform and later in a multi-UAV experiment. Such testing should include onboard power supply conditions, motor and ESC noise, vibration, outdoor DCF77 and GNSS reception, and integration with real UAV sensor and control software. This would extend the current laboratory and ROS2-based prototype into a fully evaluated UAV synchronization module.
 

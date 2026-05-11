@@ -2,7 +2,7 @@
 
 \chapter{Firmware Implementation\label{chap:firmwareImplementation}}
 
-This chapter describes the firmware developed for the STM32F042F6P6 microcontroller. The firmware implements the main synchronization logic of the prototype, including DCF77 frame decoding, parity validation, software real-time clock maintenance, RTK PPS event processing, and UART diagnostic output for the ROS2 evaluation pipeline.
+This chapter describes the firmware developed for the STM32F042F6P6 microcontroller. The firmware implements the main synchronization logic of the prototype, including DCF77 frame decoding, parity validation, software real-time clock maintenance, RTK PPS event processing, optional GPIO synchronization output for physical timing measurement, and UART diagnostic output for the ROS2 evaluation pipeline.
 
 The firmware architecture separates time-critical synchronization tasks from non-time-critical communication tasks. DCF77 and RTK PPS signal edges are handled through external interrupt callbacks, while longer operations such as UART transmission are deferred to the main loop using a pending output flag. This design reduces the influence of diagnostic communication on the local timing behavior.
 
@@ -19,6 +19,7 @@ The main firmware components are:
     \item software real-time clock maintenance,
     \item RTK PPS event handling,
     \item UART diagnostic message generation,
+    \item GPIO synchronization output used for logic-analyzer-based physical timing measurement,
     \item timeout and synchronization-state monitoring.
 \end{itemize}
 
@@ -66,11 +67,15 @@ The RTK PPS input is connected to a separate external interrupt line configured 
 
 The interrupt callback performs only timing-related operations and flag updates. UART transmission is deferred to the main loop using a pending flag. This keeps communication tasks separated from timing-sensitive interrupt processing. The interrupt-based DCF77 and RTK PPS handling is shown in Code~\ref{lst:extiCallback}, while the main loop and deferred UART transmission are shown in Code~\ref{lst:mainLoop}.
 
+During the physical accuracy measurement, the PPS interrupt path also generated a GPIO transition used as an external observation point. This made it possible to measure the delay between the incoming RTK PPS edge and the firmware-controlled synchronization output. The GPIO toggle was not part of the normal communication protocol and did not replace the UART diagnostic output; it was used only for logic-analyzer validation.
+
 \section{RTK and PPS Data Handling}
 
 The final firmware uses the RTK receiver primarily as a source of the PPS timing signal. Full GNSS navigation messages, RTK correction data, and GNSS time messages are not decoded by the STM32 firmware. Instead, the RTK PPS output is treated as an external one-second reference used to stabilize the local software clock after DCF77 synchronization.
 
 The PPS input is processed through an external interrupt configured for rising-edge detection. When a PPS edge is detected, the firmware measures the interval from the previous PPS event. If the measured interval is close to one second, the PPS event is accepted as valid. Invalid or unrealistic intervals are ignored or used only to reset the PPS timing state.
+
+For the physical synchronization accuracy measurement, an additional GPIO output was toggled inside the PPS interrupt handling path. This output was used only as a measurement signal for the logic analyzer. By comparing the RTK PPS input edge with the STM32-generated GPIO edge, the practical firmware response delay of the synchronization path could be measured. This delay includes EXTI interrupt latency, HAL processing overhead, GPIO switching delay, timer access overhead, and short-term firmware execution jitter.
 
 After the software clock has been initialized from a valid DCF77 frame, each accepted PPS event increments the software RTC by one second. The firmware also updates diagnostic variables such as the PPS counter, measured PPS period, and RTK difference value. These values are included in the UART diagnostic output and later analyzed in the ROS2 evaluation pipeline.
 

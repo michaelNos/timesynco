@@ -302,7 +302,7 @@ In the implemented prototype, the timing signals are digital inputs connected to
 
 The PCB layout supports timing preservation through short signal paths, a stable ground reference, local decoupling, and separation between timing traces and noisy power or communication routes. These design choices reduce the probability of noise-induced timing errors and improve repeatability of edge detection.
 
-The final evaluation was performed using firmware diagnostics, UART transmission, ROS2 logging, and Python analysis. This method verifies stable PPS-driven operation at millisecond-level measurement resolution. It does not directly measure sub-microsecond signal integrity or timestamp accuracy. More precise characterization would require timer input capture, oscilloscope measurements, or a dedicated timing analyzer.
+The main firmware-level evaluation was performed using firmware diagnostics, UART transmission, ROS2 logging, and Python analysis. This method verifies stable PPS-driven operation at millisecond-level measurement resolution. In addition, a logic-analyzer-based hardware measurement was performed to estimate the physical delay between the RTK PPS input and an STM32-generated synchronization GPIO output. This measurement provided practical information about the embedded response delay, but it still did not directly prove sub-microsecond timestamp accuracy. More precise characterization would require timer input capture, oscilloscope measurements, or a dedicated timing analyzer.
 
 \subsection{Edge Integrity of the PPS Signal}
 
@@ -314,7 +314,7 @@ The PCB design reduces these risks by routing the PPS trace directly from the co
 
 In the final firmware, the PPS input is processed using rising-edge interrupt detection. The system validates PPS timing by checking whether the measured interval is close to one second before accepting it as a valid clock increment. This improves robustness against occasional false pulses or missing edges.
 
-The implemented design was sufficient for stable PPS-driven second generation at millisecond-level evaluation resolution. More precise verification of PPS edge integrity would require oscilloscope measurements or timer input-capture-based timestamping.
+The implemented design was sufficient for stable PPS-driven second generation at millisecond-level firmware evaluation resolution. The later logic-analyzer measurement additionally confirmed that the PPS-triggered STM32 GPIO response remained in the sub-millisecond range during normal operation, although occasional latency spikes were observed. More precise verification of the PPS edge itself would require oscilloscope measurements or timer input-capture-based timestamping.
 
 \subsection{Timer Resolution Limitation}
 
@@ -344,6 +344,8 @@ The RTK PPS input is more timing-sensitive because the PPS rising edge defines t
 
 Because the final prototype uses EXTI-based interrupt detection rather than hardware timer input capture, interrupt latency remains part of the implementation uncertainty. This is acceptable for the millisecond-level validation performed in this thesis, but it limits the ability to prove microsecond-level timing behavior. Future revisions should use timer input capture so that the hardware stores the PPS timestamp independently of interrupt execution latency.
 
+This limitation was also visible in the later physical synchronization measurement. The measured PPS-to-GPIO delay included not only the electrical input response, but also EXTI interrupt latency, HAL processing overhead, GPIO switching delay, and firmware execution jitter. Therefore, the logic-analyzer result characterizes the practical response of the implemented firmware path rather than the intrinsic accuracy of the RTK PPS source.
+
 \subsection{Jitter Sources}
 
 Jitter represents the variation of timing events from their expected positions. In the synchronization module, jitter can appear in the external timing signals, in the PCB signal path, in the STM32 interrupt response, and in the UART/ROS2 measurement pipeline.
@@ -356,12 +358,13 @@ The main jitter sources are:
     \item supply-voltage and ground noise,
     \item interrupt latency variation inside the STM32 firmware,
     \item UART buffering and operating-system scheduling on the companion-computer side,
+    \item logic-analyzer sampling resolution during physical PPS-to-GPIO measurement,
     \item ROS2 message processing and CSV logging delay.
 \end{itemize}
 
 For the implemented system, it is important to distinguish between synchronization jitter and measurement jitter. DCF77 and RTK PPS events influence the local STM32 software clock, while UART and ROS2 only observe and log the generated diagnostic messages. Therefore, jitter in ROS2 message arrival time does not directly mean that the STM32 clock itself is drifting.
 
-The final measurements showed stable PPS-driven second generation with no observable RTK difference at millisecond-level resolution. However, because the evaluation used UART diagnostics and ROS2 logs, the measured jitter mainly describes the implemented observation pipeline rather than true hardware-level PPS timing uncertainty.
+The firmware-level measurements showed stable PPS-driven second generation with no observable RTK difference at millisecond-level resolution. The additional logic-analyzer measurement showed that the physical PPS-to-GPIO response was typically within the sub-millisecond range, with occasional larger latency spikes. Therefore, the observed jitter must be separated into firmware-level diagnostic jitter, physical interrupt-response jitter, and ROS2 communication-arrival jitter.
 
 A more precise jitter analysis would require direct hardware timestamping, timer input capture, or an external measurement instrument such as an oscilloscope or timing analyzer.
 
@@ -390,5 +393,7 @@ Several practical trade-offs were made during the development of the synchroniza
 Native STM32 USB communication was investigated during development, but it was not used in the final validated system because it was unstable on the prototype hardware. UART communication through an external CP2102 USB-UART bridge was therefore selected as the final diagnostic interface. This reduced communication complexity and improved reliability during laboratory validation.
 
 DCF77 was used for absolute calendar-time acquisition, while the RTK receiver was used mainly through its PPS output. This avoided the need to decode complete GNSS time messages in the STM32 firmware and kept the synchronization logic simpler. The trade-off is that the current firmware depends on DCF77 for absolute time and uses RTK PPS only for stable second generation.
+
+Another trade-off was the use of EXTI-based PPS interrupt processing instead of timer input capture. This simplified the firmware and was sufficient for the prototype validation, but the physical PPS-to-GPIO measurement showed that the achieved precision is limited by interrupt latency and HAL overhead. A future design using hardware timer input capture or output compare could reduce this uncertainty.
 
 The final design therefore favors simplicity, debuggability, and reliable prototype validation over maximum timing resolution or full GNSS time integration. Higher-precision timestamping and direct GNSS time decoding remain future improvements.

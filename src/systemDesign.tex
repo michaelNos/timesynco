@@ -14,7 +14,7 @@ This section defines the functional and non-functional requirements of the propo
 
 The system shall acquire absolute calendar time from an external time reference, maintain a local software clock on the microcontroller, and use a stable external one-second signal to reduce long-term drift. The design shall also provide a reliable communication path to a companion-computer environment for monitoring, logging, and experimental evaluation.
 
-Because the final prototype is evaluated through UART messages and ROS2 logs, the requirements distinguish between the intended timing architecture and the measurement resolution of the implemented evaluation setup. The system is expected to demonstrate stable PPS-driven second generation and reliable synchronization-state reporting, but the implemented measurement method is not intended to directly prove sub-microsecond synchronization accuracy.
+Because the final prototype is evaluated through both firmware-level diagnostics and an additional hardware-level logic-analyzer measurement, the requirements distinguish between software-clock synchronization, communication-level logging, and physical PPS-to-GPIO timing behavior. The system is expected to demonstrate stable PPS-driven second generation, reliable synchronization-state reporting, and sub-millisecond physical response during normal operation. The implemented measurement method is not intended to prove absolute sub-microsecond synchronization accuracy.
 
 \subsection{Synchronization Accuracy Requirement}
 
@@ -27,6 +27,10 @@ Therefore, the practical accuracy requirement for this thesis is defined as stab
 \left| \varepsilon_\texttt{RTK\_DIFF} \right| = 0~\mathrm{ms}
 \end{equation}
 during synchronized RTK PPS-driven operation, where $\varepsilon_{RTK\_DIFF}$ represents the measured phase difference between the RTK PPS event and the internal software-clock second as reported by the firmware diagnostics.
+
+In addition to the firmware-level RTK DIFF metric, the physical response of the synchronization system shall be evaluated by measuring the delay between the external RTK PPS input and an STM32-generated synchronization GPIO output. This delay represents the practical PPS-to-firmware response of the implemented architecture and includes interrupt latency, HAL processing overhead, GPIO switching delay, timer access overhead, and firmware execution jitter.
+
+The expected practical result is sub-millisecond physical alignment during normal operation, with possible occasional latency spikes caused by interrupt scheduling and software overhead. Therefore, the synchronization accuracy requirement is divided into two levels: zero observable firmware-level RTK DIFF at 1 ms diagnostic resolution, and sub-millisecond PPS-to-GPIO response during typical hardware-level operation.
 
 This requirement does not claim absolute sub-microsecond synchronization accuracy. Instead, it verifies that the final firmware architecture successfully locks the software-clock second generation to the RTK PPS interrupt and eliminates the accumulated drift observed when the internal clock was driven only by the local timer.
 
@@ -107,6 +111,7 @@ The proposed synchronization module must satisfy the following key requirements:
     \item provide deterministic interrupt-based processing of DCF77 and RTK PPS timing signals,
     \item transmit synchronization diagnostics through UART for ROS2-based logging and evaluation,
     \item demonstrate stable PPS-driven operation with no observable long-term drift at millisecond-level measurement resolution,
+    \item measure the physical PPS-to-GPIO synchronization offset using a logic analyzer and verify typical sub-millisecond response during normal operation,
     \item remain compact, low-complexity, and suitable for future UAV-related experiments.
 \end{itemize}
 
@@ -290,5 +295,7 @@ The practical inter-node timing difference can be conceptually described as
 \varepsilon_{swarm} \approx \varepsilon_{timeRef} + \varepsilon_{pps} + \varepsilon_{firmware} + \varepsilon_{measurement},
 \end{equation}
 where $\varepsilon_{timeRef}$ represents uncertainty of the absolute time reference, $\varepsilon_{pps}$ represents PPS timing uncertainty, $\varepsilon_{firmware}$ represents embedded processing uncertainty, and $\varepsilon_{measurement}$ represents the resolution and delay of the evaluation method.
+
+In the implemented prototype, the firmware-level part of this uncertainty was later evaluated by measuring the physical delay between the RTK PPS input and an STM32 synchronization GPIO output. This measurement does not represent a full swarm-level synchronization error, but it provides a practical estimate of the local embedded response delay that would contribute to the overall synchronization uncertainty of each node.
 
 In this thesis, global swarm consistency was not validated through a full UAV swarm experiment. Instead, the prototype was evaluated using UART and ROS2 logging, including single-board RTK PPS measurements and two-board comparison experiments. Therefore, the results demonstrate the feasibility of the architecture and stable PPS-driven software-clock behavior, while full swarm-level timing validation remains future work.

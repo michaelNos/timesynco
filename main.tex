@@ -524,6 +524,7 @@ void update_debug_time_string(void)
 	    if (!use_rtk_pps_clock)
 	    {
 	        clock_add_one_second();
+	        HAL_GPIO_TogglePin(TEST_GPIO_Port, TEST_Pin);
 	        update_debug_time_string();
 	        pps_print_pending = 1;
 	    }
