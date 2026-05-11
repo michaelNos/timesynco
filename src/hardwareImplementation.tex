@@ -34,8 +34,6 @@ The main reasons for selecting this microcontroller were:
     \item sufficient flash and RAM resources for DCF77 decoding, software RTC maintenance, PPS processing, and UART message generation.
 \end{itemize}
 
-The STM32F042F6P6 also includes an integrated USB Full-Speed peripheral. This feature was considered during development, but native USB communication was not used in the final validated system because the prototype showed unstable USB behavior. The final communication path therefore uses UART through an external CP2102 USB-UART bridge.
-
 Overall, the selected microcontroller provided a suitable balance between size, simplicity, peripheral availability, and firmware development support for the synchronization prototype.
 
 \subsection{Clock Architecture}
@@ -134,8 +132,6 @@ The UART output contains the current software-clock time, date, PCB identifier, 
 
 In the final firmware, UART is not used to discipline the software clock. It is also not used for full GNSS navigation-message parsing or RTK correction processing. The RTK receiver contributes to the synchronization system through its PPS output, while UART is used only to export diagnostic information from the STM32.
 
-This separation keeps the timing path independent from serial communication latency. DCF77 and RTK PPS signals define the local clock behavior, while UART provides visibility into the internal synchronization state.
-
 \subsection{Connector Mirroring Strategy}
 
 The hardware design includes mirrored RTK-related connector signals to make the prototype easier to integrate into a larger experimental setup. The connector routing is shown in Fig.~\ref{fig:timingInterfaces}. The purpose of this strategy is to allow selected RTK-related signals, including the PPS line, to remain accessible while the synchronization board is inserted into the signal path.
@@ -154,7 +150,7 @@ For the DCF77 input, reliable pulse-width measurement is more important than mic
 
 For the RTK PPS input, the rising edge is used as the stable one-second event for software-clock generation. The PPS trace should therefore be routed directly and kept away from sources of noise. A clean PPS edge improves repeatability of interrupt detection and reduces the risk of false or missed PPS events.
 
-The final prototype validates timing behavior at millisecond-level resolution using firmware diagnostics and ROS2 logs. Therefore, the design objective is stable PPS-driven second generation and elimination of observable long-term drift, not direct proof of sub-microsecond synchronization accuracy. For future higher-precision validation, the PPS signal should be measured using timer input capture or an external timing instrument.
+The final prototype validates software-clock behavior using firmware diagnostics and ROS2 logs, and additionally estimates physical PPS-to-GPIO response using a logic analyzer. The design objective is stable PPS-driven second generation, elimination of observable long-term drift, and typical sub-millisecond physical response during normal operation, not proof of absolute sub-microsecond synchronization accuracy.
 
 \section{Power Supply Design}
 
@@ -183,8 +179,6 @@ The AMS1117-3.3 regulator was selected because it provides a simple and reliable
 A linear regulator was also suitable during development because it avoids the switching ripple produced by DC-DC converters. This simplified the first hardware revision and reduced the number of possible noise sources during debugging of DCF77 reception, RTK PPS detection, and UART communication.
 
 The design priority of the prototype was stable operation and easy validation rather than maximum power efficiency. The board was mainly tested in a laboratory environment with USB power, where regulator efficiency was less critical than predictable behavior and simple implementation.
-
-For future UAV deployment, the regulator choice should be reconsidered. A modern low-quiescent-current LDO or efficient switching regulator would reduce power loss and heating, especially when the module is powered from a battery-operated UAV platform.
 
 \subsection{Limitations and Future Improvement}
 
@@ -332,7 +326,7 @@ and therefore a timer resolution of
 \end{equation}
 This resolution is sufficient for DCF77 pulse-width decoding because the signal represents logical values using pulse durations of approximately 100 ms and 200 ms. A 1 ms timing step is also sufficient for observing RTK PPS period stability and software-clock behavior in the implemented diagnostic system.
 
-However, the 1 ms timer resolution is not sufficient to directly prove microsecond-level or sub-microsecond synchronization accuracy. The final evaluation can only confirm synchronization behavior at the available millisecond-level measurement resolution. Future versions should use a faster timer configuration, timer input capture, or an external timing instrument if microsecond-level characterization is required.
+The firmware-level evaluation can only confirm synchronization behavior at the available millisecond-level diagnostic resolution. The additional logic-analyzer measurement provides a practical PPS-to-GPIO physical response estimate, but it does not replace true hardware timestamping of the PPS edge.
 
 \subsection{Interrupt Latency Considerations}
 

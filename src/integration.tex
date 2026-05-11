@@ -42,8 +42,6 @@ It is important to distinguish between the STM32 synchronization time and the RO
 
 This distinction is also important for the physical synchronization measurement. ROS2 arrival timestamps describe communication latency and logging behavior, whereas the PPS-to-GPIO measurement captures the local embedded response delay between the external PPS edge and the STM32-generated synchronization output.
 
-This data exchange structure keeps the embedded synchronization logic independent from the companion-computer environment while still providing enough diagnostic information for validation and post-processing.
-
 \section{Testing on UAV Platform}
 
 The implemented synchronization system was tested in a ROS2-based companion-computer environment rather than in a complete flight-tested UAV deployment. The purpose of this testing was to verify the communication pipeline, synchronization-state reporting, ROS2 topic publication, CSV logging, and timing-analysis workflow.
@@ -65,7 +63,7 @@ These tests confirmed that the synchronization module can be integrated with the
 
 \section{Integration Summary}
 
-The integration pipeline successfully connected the STM32 synchronization module with the ROS2 evaluation environment. The final data path used UART output from the STM32, CP2102 USB-UART conversion, ROS2 serial reading, topic publication, and CSV logging. This allowed synchronization behavior to be monitored and analyzed without using ROS2 as the clock synchronization source.
+The integration pipeline successfully connected the STM32 synchronization module with the ROS2 evaluation environment. The final data path used UART output from the STM32, CP2102 USB-UART conversion, ROS2 serial reading, topic publication, and CSV logging. This allowed synchronization behavior to be monitored and analyzed from the companion-computer environment.
 
 The main limitation of the integration stage is that validation was performed in a laboratory ROS2 environment rather than during a complete UAV flight test. Nevertheless, the implemented pipeline provides a practical foundation for future integration with UAV onboard computers and MRS-based experimental platforms. The ROS2 integration validates data transport and logging, while physical timing accuracy must be evaluated using direct hardware measurements such as the logic-analyzer PPS-to-GPIO method used later in this thesis.
 

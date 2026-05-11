@@ -14,6 +14,8 @@ The hardware implementation is based on a custom STM32F042F6P6 PCB with USB-C po
 
 The firmware decodes and validates DCF77 frames, maintains a software real-time clock, processes RTK PPS interrupt events, and transmits synchronization diagnostics to the companion-computer environment. ROS2 nodes receive the UART messages, publish them to topics, store CSV logs, and support Python-based post-processing.
 
+An additional logic-analyzer-based PPS-to-GPIO measurement showed typical sub-millisecond physical response during normal operation, while occasional latency spikes confirmed that the practical precision is limited mainly by EXTI interrupt latency, HAL processing overhead, and GPIO switching delay.
+
 The final evaluation confirmed stable DCF77-based time acquisition and RTK PPS-driven second generation. In the final RTK PPS test, the measured \texttt{RTK\_DIFF} remained equal to 0 ms for all synchronized samples at millisecond-level measurement resolution, with an estimated drift of 0.000 ms/s. The results do not prove sub-microsecond synchronization accuracy, but they validate a functional synchronization prototype with no observable long-term software-clock drift at the implemented measurement resolution.
 
 \vskip 1em

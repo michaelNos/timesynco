@@ -5,13 +5,13 @@
 \contentsline {section}{\numberline {1.3}Structure of the Thesis}{2}{section.1.3}%
 \contentsline {chapter}{\numberline {2}Theoretical Background}{3}{chapter.2}%
 \contentsline {section}{\numberline {2.1}Time Synchronization Principles}{3}{section.2.1}%
-\contentsline {subsection}{\numberline {2.1.1}Clock Model in Distributed Systems}{4}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.1}Clock Model in Distributed Systems}{3}{subsection.2.1.1}%
 \contentsline {subsection}{\numberline {2.1.2}Oscillator Stability and Drift}{4}{subsection.2.1.2}%
 \contentsline {subsection}{\numberline {2.1.3}Precision and Accuracy}{4}{subsection.2.1.3}%
 \contentsline {subsection}{\numberline {2.1.4}Network-Based Synchronization Methods}{5}{subsection.2.1.4}%
 \contentsline {subsection}{\numberline {2.1.5}Hardware-Assisted Synchronization}{5}{subsection.2.1.5}%
 \contentsline {subsection}{\numberline {2.1.6}Theoretical Limitations}{6}{subsection.2.1.6}%
-\contentsline {section}{\numberline {2.2}GNSS and RTK Fundamentals}{7}{section.2.2}%
+\contentsline {section}{\numberline {2.2}GNSS and RTK Fundamentals}{6}{section.2.2}%
 \contentsline {subsection}{\numberline {2.2.1}GNSS Time Reference}{7}{subsection.2.2.1}%
 \contentsline {subsection}{\numberline {2.2.2}Real-Time Kinematic (RTK) Enhancement}{7}{subsection.2.2.2}%
 \contentsline {subsection}{\numberline {2.2.3}Timing Accuracy and Error Sources}{8}{subsection.2.2.3}%
@@ -56,12 +56,12 @@
 \contentsline {section}{\numberline {4.1}Microcontroller Core Design}{28}{section.4.1}%
 \contentsline {subsection}{\numberline {4.1.1}Device Selection Rationale}{28}{subsection.4.1.1}%
 \contentsline {subsection}{\numberline {4.1.2}Clock Architecture}{29}{subsection.4.1.2}%
-\contentsline {subsection}{\numberline {4.1.3}PPS Input Configuration}{30}{subsection.4.1.3}%
+\contentsline {subsection}{\numberline {4.1.3}PPS Input Configuration}{29}{subsection.4.1.3}%
 \contentsline {subsection}{\numberline {4.1.4}Reset and Boot Configuration}{30}{subsection.4.1.4}%
 \contentsline {subsection}{\numberline {4.1.5}Debug Interface}{30}{subsection.4.1.5}%
 \contentsline {section}{\numberline {4.2}DCF77 and RTK PPS Interface Design}{31}{section.4.2}%
 \contentsline {subsection}{\numberline {4.2.1}PPS Signal Routing}{31}{subsection.4.2.1}%
-\contentsline {subsection}{\numberline {4.2.2}Direct Edge Detection}{32}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.2}Direct Edge Detection}{31}{subsection.4.2.2}%
 \contentsline {subsection}{\numberline {4.2.3}UART Diagnostic Communication}{32}{subsection.4.2.3}%
 \contentsline {subsection}{\numberline {4.2.4}Connector Mirroring Strategy}{32}{subsection.4.2.4}%
 \contentsline {subsection}{\numberline {4.2.5}Design Considerations for Timing Accuracy}{33}{subsection.4.2.5}%
@@ -73,7 +73,7 @@
 \contentsline {section}{\numberline {4.4}PCB Layout and Grounding Strategy}{35}{section.4.4}%
 \contentsline {subsection}{\numberline {4.4.1}Layer Stack Configuration}{36}{subsection.4.4.1}%
 \contentsline {subsection}{\numberline {4.4.2}Ground Plane Strategy}{36}{subsection.4.4.2}%
-\contentsline {subsection}{\numberline {4.4.3}Component Placement Philosophy}{37}{subsection.4.4.3}%
+\contentsline {subsection}{\numberline {4.4.3}Component Placement Philosophy}{36}{subsection.4.4.3}%
 \contentsline {subsection}{\numberline {4.4.4}Power Plane Design}{37}{subsection.4.4.4}%
 \contentsline {subsection}{\numberline {4.4.5}High-Speed and Timing Trace Considerations}{37}{subsection.4.4.5}%
 \contentsline {subsection}{\numberline {4.4.6}Thermal and Mechanical Stability}{38}{subsection.4.4.6}%
@@ -99,7 +99,7 @@
 \contentsline {section}{\numberline {7.1}Measurement Setup}{50}{section.7.1}%
 \contentsline {section}{\numberline {7.2}Single-Board DCF77 Synchronization Test}{51}{section.7.2}%
 \contentsline {section}{\numberline {7.3}RTK PPS Synchronization Evaluation}{51}{section.7.3}%
-\contentsline {section}{\numberline {7.4}Physical synchronization accuracy measurement}{53}{section.7.4}%
+\contentsline {section}{\numberline {7.4}Physical Synchronization Accuracy Measurement}{53}{section.7.4}%
 \contentsline {subsection}{\numberline {7.4.1}Measurement Methodology}{53}{subsection.7.4.1}%
 \contentsline {subsection}{\numberline {7.4.2}Physical Synchronization Offset}{54}{subsection.7.4.2}%
 \contentsline {subsection}{\numberline {7.4.3}Synchronization Offset Distribution}{54}{subsection.7.4.3}%
@@ -109,7 +109,7 @@
 \contentsline {section}{\numberline {7.5}Two-Board Synchronization Comparison}{57}{section.7.5}%
 \contentsline {section}{\numberline {7.6}ROS2 Logging and Arrival-Time Analysis}{57}{section.7.6}%
 \contentsline {section}{\numberline {7.7}Communication Reliability}{58}{section.7.7}%
-\contentsline {section}{\numberline {7.8}Limitations of the Measurement Method}{59}{section.7.8}%
+\contentsline {section}{\numberline {7.8}Limitations of the Measurement Method}{58}{section.7.8}%
 \contentsline {section}{\numberline {7.9}Evaluation Summary}{59}{section.7.9}%
 \contentsline {chapter}{\numberline {8}Conclusion}{61}{chapter.8}%
 \contentsline {section}{\numberline {8.1}Summary of Results}{62}{section.8.1}%

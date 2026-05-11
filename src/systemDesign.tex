@@ -20,7 +20,7 @@ Because the final prototype is evaluated through both firmware-level diagnostics
 
 The synchronization system is intended to improve temporal consistency between embedded nodes by reducing long-term drift of the local microcontroller clock. In UAV swarm applications, accurate and consistent timestamps are important for sensor-data correlation, event ordering, and coordination between vehicles \cite{r1,r5,r11}.
 
-From a theoretical point of view, hardware timing references such as GNSS or RTK PPS can support very high timing precision when measured using suitable hardware timestamping methods \cite{teunissen2017springer}. However, the implemented prototype was evaluated using UART diagnostic messages, HAL tick timing, and ROS2 logs. This evaluation path provides millisecond-level observable resolution rather than direct microsecond-level measurement.
+From a theoretical point of view, hardware timing references such as GNSS or RTK PPS can support very high timing precision when measured using suitable hardware timestamping methods \cite{teunissen2017springer}. The implemented prototype was evaluated using UART diagnostic messages, HAL tick timing, ROS2 logs, and an additional logic-analyzer PPS-to-GPIO measurement. This evaluation path provides millisecond-level observable resolution rather than direct microsecond-level measurement.
 
 Therefore, the practical accuracy requirement for this thesis is defined as stable second-level synchronization with no observable long-term drift at millisecond-level measurement resolution. The main measurable target is
 \begin{equation}
@@ -131,7 +131,7 @@ The architecture consists of the following functional blocks:
     \item UART diagnostic output connected to the companion computer through a CP2102 USB-UART bridge.
 \end{itemize}
 
-The synchronization path is separated from the communication path. DCF77 and RTK PPS signals are processed locally by the microcontroller, while UART communication is used only to transmit diagnostic messages to the ROS2 evaluation environment. This separation prevents communication latency from directly influencing the local clock.
+The synchronization path is separated from the communication path. DCF77 and RTK PPS are processed locally by the STM32, while UART communication is used only to transmit diagnostic messages to the ROS2 evaluation environment.
 
 The hardware architecture therefore supports the main design goal of the thesis: deterministic local time generation from physical timing references with reliable external logging and analysis.
 

@@ -14,6 +14,8 @@ Hardwarová implementace je založena na vlastní desce plošných spojů s mikr
 
 Firmware dekóduje a ověřuje rámce DCF77, udržuje softwarové hodiny reálného času, zpracovává přerušení RTK PPS a odesílá diagnostické zprávy do prostředí companion computeru. Uzly ROS2 přijímají UART zprávy, publikují je do témat, ukládají CSV logy a umožňují následné zpracování pomocí Python skriptů.
 
+Doplňkové měření pomocí logického analyzátoru, které porovnávalo RTK PPS vstup se synchronizačním GPIO výstupem mikrokontroléru STM32, ukázalo typickou submilisekundovou fyzickou odezvu při běžném provozu. Občasné latenční špičky zároveň potvrdily, že praktická přesnost je omezena především latencí EXTI přerušení, režií HAL knihovny a zpožděním přepnutí GPIO výstupu.
+
 Finální vyhodnocení potvrdilo stabilní získávání času z DCF77 a generování sekund řízené signálem RTK PPS. Ve finálním RTK PPS testu zůstala měřená hodnota \texttt{RTK\_DIFF} rovna 0 ms pro všechny synchronizované vzorky při milisekundovém rozlišení měření a odhadovaný drift byl 0.000 ms/s. Výsledky neprokazují submikrosekundovou přesnost synchronizace, ale ověřují funkční synchronizační prototyp bez pozorovatelného dlouhodobého driftu softwarových hodin v dostupném rozlišení měření.
 \vskip 1em
 

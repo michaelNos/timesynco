@@ -14,8 +14,6 @@ In distributed robotic systems, inconsistent time bases can lead to incorrect or
 
 Synchronization methods can be divided into two broad categories. Network-based methods estimate clock offset by exchanging timestamped messages between nodes, as in Cristian's algorithm, FTSP, or IEEE 1588 PTP \cite{cristian1989probabilistic,maroti2004ftsp,ieee1588}. These methods are flexible, but their precision depends on communication-delay stability. In wireless UAV networks, variable latency, interference, and packet buffering can introduce significant jitter \cite{lopez2021uavmesh}.
 
-In the final prototype, the RTK PPS signal was detected using an external interrupt input rather than full timer input-capture mode. The interrupt was used to increment the software clock after a valid DCF77 synchronization \cite{ptbDcf77}. This implementation was sufficient to verify PPS-driven second generation and removal of long-term software-clock drift. A later logic-analyzer measurement also allowed the physical delay between the PPS input and an STM32 synchronization GPIO output to be estimated. However, because the firmware still used EXTI-based interrupt handling, the measured offset included interrupt latency, HAL overhead, GPIO switching delay, and firmware execution jitter. For future microsecond-level internal timestamping, the PPS signal should be connected to a timer input-capture channel and measured using hardware timestamps.
-
 \subsection{Clock Model in Distributed Systems}
 
 A local clock in a distributed embedded system can be described as an approximation of an ideal reference time. If $t$ denotes the true reference time, the clock of node $i$ can be modeled as
@@ -46,7 +44,7 @@ For example, two UAV nodes may have high relative precision if their clocks diff
 
 In distributed UAV systems, both properties are important. Absolute accuracy is required when measurements must be related to a global time scale, while relative precision is important when comparing sensor data or events between multiple vehicles \cite{r1,r2,r7}. In this thesis, DCF77 is used to provide absolute calendar time \cite{ptbDcf77}, while the RTK PPS signal is used to provide a stable one-second reference for maintaining the local software clock.
 
-The experimental evaluation in this work reports timing behavior using firmware and ROS2 logs with millisecond-level visibility. Therefore, the results demonstrate stable observable alignment and elimination of long-term software-clock drift at the implemented measurement resolution, but they should not be interpreted as a direct proof of sub-microsecond synchronization accuracy.
+The experimental evaluation in this work combines firmware/ROS2-based measurements with a logic-analyzer-based PPS-to-GPIO measurement. The firmware and ROS2 logs provide millisecond-level visibility into software-clock behavior and communication timing, while the logic-analyzer measurement provides a practical estimate of the physical response delay of the implemented interrupt-based synchronization path.
 
 \subsection{Network-Based Synchronization Methods}
 
