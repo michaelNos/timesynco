@@ -2,15 +2,28 @@
 
 \chapter{Conclusion\label{chap:conclusion}}
 
-This thesis presented the design, implementation, and evaluation of a microcontroller-based time synchronization prototype intended for UAV swarm-related experiments. The final system combines DCF77 absolute time reception, RTK PPS-based second generation, STM32 firmware processing, UART diagnostic communication, and ROS2-based logging and analysis.
+This thesis presented the design and implementation of a low-cost embedded time synchronization platform based on the STM32 microcontroller family, DCF77 radio time synchronization, RTK PPS timing references, and ROS2 integration.
 
-The developed prototype demonstrates a practical hardware-assisted synchronization architecture. DCF77 is used to acquire absolute calendar time, while the RTK PPS signal is used as a stable one-second reference after synchronization. The STM32 firmware decodes and validates DCF77 frames, maintains a software real-time clock, processes PPS interrupts, and transmits synchronization diagnostics to the companion-computer environment.
+The developed system successfully decoded and validated DCF77 time frames, implemented a software-based real-time clock, and integrated external PPS synchronization into the STM32 firmware architecture. The work demonstrated that long-term software clock drift could be eliminated by replacing the free-running software second generation mechanism with direct PPS-driven second increments.
 
-The evaluation confirmed that the final PPS-driven implementation eliminated the observable long-term drift that occurred when the software clock relied only on the local timer. During the final RTK PPS test, the measured \texttt{RTK\_DIFF} remained equal to 0 ms for all synchronized samples at millisecond-level measurement resolution. The ROS2 pipeline also successfully supported single-board logging, two-board comparison, CSV storage, and Python-based analysis.
+Experimental evaluation showed that the implemented architecture achieved stable synchronization behavior during long-term operation. The ROS2 integration infrastructure enabled simultaneous monitoring and comparison of multiple synchronized boards and provided additional timing analysis capabilities.
 
-The results should be interpreted according to the limitations of the measurement method. The implemented evaluation does not prove sub-microsecond synchronization accuracy, because it is based on firmware diagnostics, UART transmission, ROS2 logs, and millisecond-level timing visibility. Instead, the thesis validates stable DCF77-based time acquisition, RTK PPS-driven second generation, reliable UART/ROS2 integration, and no observable long-term software-clock drift at the available measurement resolution.
+The originally implemented \texttt{RTK\_DIFF} metric converged to approximately 0 ms because both timestamps were generated from the same PPS-driven event inside the firmware architecture. Although this result confirmed successful software-level PPS discipline, additional hardware-level validation using a logic analyzer demonstrated that the real physical synchronization precision was limited primarily by interrupt latency and software processing overhead.
 
-Overall, the work provides a functional and extensible prototype that can serve as a foundation for future UAV synchronization experiments and more precise hardware-level timing validation.
+The physical synchronization measurements showed stable sub-millisecond synchronization behavior during normal operation, with occasional larger latency spikes caused by interrupt scheduling variability and HAL processing overhead. The achieved precision was considered acceptable for the intended prototype architecture and successfully demonstrated practical external clock discipline using a low-cost STM32 platform.
+
+The thesis also documented multiple practical implementation challenges, including USB communication instability, STM32 clock configuration issues, interrupt timing behavior, DCF77 signal processing, and ROS2 integration under WSL-based development infrastructure.
+\\
+\\
+The final architecture demonstrated:
+
+\begin{itemize} \item successful DCF77 time decoding and validation, \item software RTC implementation on STM32, \item external PPS-based clock discipline, \item ROS2-based timing comparison infrastructure, \item hardware-level synchronization validation, \item stable long-term synchronized operation. \end{itemize}
+
+Possible future improvements include:
+
+\begin{itemize} \item hardware timer input capture synchronization, \item lower-level interrupt handling without HAL overhead, \item higher timer resolution, \item direct hardware compare/toggle synchronization outputs, \item integration with additional GNSS timing sources, \item synchronization testing in distributed robotic systems. \end{itemize}
+
+The developed prototype successfully demonstrated the feasibility of combining low-cost embedded hardware, external radio and GNSS timing references, and ROS2 infrastructure into a functional experimental synchronization platform.
 
 \section{Summary of Results}
 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.2.22)  10 MAY 2026 21:02
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.2.22)  11 MAY 2026 01:47
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1959,7 +1959,7 @@ Package: upquote 2012/04/19 v1.3 upright-quote and grave-accent glyphs in verba
 tim
 )
 (src/title.tex
-<fig/ctu_lion.pdf, id=534, 561.09625pt x 440.64626pt>
+<fig/ctu_lion.pdf, id=562, 561.09625pt x 440.64626pt>
 File: fig/ctu_lion.pdf Graphic file (type pdf)
 <use fig/ctu_lion.pdf>
 Package pdftex.def Info: fig/ctu_lion.pdf  used on input line 10.
@@ -1986,12 +1986,12 @@ Underfull \hbox (badness 10000) in paragraph at lines 5--12
 ) [2
 
 ]
-<src/assignment.pdf, id=550, 597.50829pt x 845.0471pt>
+<src/assignment.pdf, id=578, 597.50829pt x 845.0471pt>
 File: src/assignment.pdf Graphic file (type pdf)
 <use src/assignment.pdf>
 Package pdftex.def Info: src/assignment.pdf  used on input line 57.
 (pdftex.def)             Requested size: 597.50682pt x 845.04504pt.
-<src/assignment.pdf, id=552, page=1, 597.50829pt x 845.0471pt>
+<src/assignment.pdf, id=580, page=1, 597.50829pt x 845.0471pt>
 File: src/assignment.pdf Graphic file (type pdf)
 <use src/assignment.pdf, page 1>
 Package pdftex.def Info: src/assignment.pdf , page1 used on input line 57.
@@ -2016,12 +2016,12 @@ Package pdftex.def Info: src/assignment.pdf , page1 used on input line 57.
 
 
  <./src/assignment.pdf>]
-<src/declaration.pdf, id=597, 597.50829pt x 845.0471pt>
+<src/declaration.pdf, id=625, 597.50829pt x 845.0471pt>
 File: src/declaration.pdf Graphic file (type pdf)
 <use src/declaration.pdf>
 Package pdftex.def Info: src/declaration.pdf  used on input line 65.
 (pdftex.def)             Requested size: 597.50682pt x 845.04504pt.
-<src/declaration.pdf, id=599, page=1, 597.50829pt x 845.0471pt>
+<src/declaration.pdf, id=627, page=1, 597.50829pt x 845.0471pt>
 File: src/declaration.pdf Graphic file (type pdf)
 <use src/declaration.pdf, page 1>
 Package pdftex.def Info: src/declaration.pdf , page1 used on input line 65.
@@ -2493,11 +2493,11 @@ File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
 ) [10
 
 ]
-[11])
+[11] [12])
 \tf@toc=\write6
 \openout6 = `main.toc'.
 
- [12] (src/introduction.tex
+ [13] (src/introduction.tex
 Chapter 1.
 [1
 
@@ -2540,63 +2540,103 @@ Chapter 6.
 Chapter 7.
 [48
 
-] [49] [50] [51] [52] [53]) (src/conclusion.tex [54]
+] [49] [50] [51]
+<fig/photos/physical_offset_over_time.png, id=1434, 722.7pt x 361.35pt>
+File: fig/photos/physical_offset_over_time.png Graphic file (type png)
+<use fig/photos/physical_offset_over_time.png>
+Package pdftex.def Info: fig/photos/physical_offset_over_time.png  used on inpu
+t line 139.
+(pdftex.def)             Requested size: 399.47415pt x 199.73558pt.
+<fig/photos/physical_offset_histogram.png, id=1437, 722.7pt x 361.35pt>
+File: fig/photos/physical_offset_histogram.png Graphic file (type png)
+<use fig/photos/physical_offset_histogram.png>
+Package pdftex.def Info: fig/photos/physical_offset_histogram.png  used on inpu
+t line 149.
+(pdftex.def)             Requested size: 399.47415pt x 199.73558pt.
+
+Underfull \vbox (badness 1490) has occurred while \output is active []
+
+ [52 <./fig/photos/physical_offset_over_time.png>]
+<fig/photos/physical_jitter_over_time.png, id=1447, 722.7pt x 361.35pt>
+File: fig/photos/physical_jitter_over_time.png Graphic file (type png)
+<use fig/photos/physical_jitter_over_time.png>
+Package pdftex.def Info: fig/photos/physical_jitter_over_time.png  used on inpu
+t line 159.
+(pdftex.def)             Requested size: 399.47415pt x 199.73558pt.
+
+Underfull \vbox (badness 7238) has occurred while \output is active []
+
+ [53 <./fig/photos/physical_offset_histogram.png> <./fig/photos/physical_jitter
+_over_time.png>]
+<fig/photos/physical_offset_normal_region.png, id=1457, 722.7pt x 361.35pt>
+File: fig/photos/physical_offset_normal_region.png Graphic file (type png)
+<use fig/photos/physical_offset_normal_region.png>
+Package pdftex.def Info: fig/photos/physical_offset_normal_region.png  used on 
+input line 167.
+(pdftex.def)             Requested size: 399.47415pt x 199.73558pt.
+ [54 <./fig/photos/physical_offset_normal_region.png>] [55] [56] [57])
+(src/conclusion.tex [58]
 Chapter 8.
 
-Underfull \hbox (badness 2142) in paragraph at lines 19--20
+Underfull \hbox (badness 10000) in paragraph at lines 15--19
+
+ []
+
+[59
+
+]
+Underfull \hbox (badness 2142) in paragraph at lines 32--33
 []\OT1/cmr/m/n/10.95 The hard-ware part of the work re-sulted in a com-pact PCB
  con-tain-ing the
  []
 
-[55
-
-]) [56]
+[60]) [61]
 Chapter 9.
 LaTeX Font Info:    Font shape `OT1/zi4/m/n' will be
 (Font)              scaled to size 10.0pt on input line 171.
-[57
+[62
 
 ]
 LaTeX Font Info:    Font shape `OT1/zi4/m/n' will be
 (Font)              scaled to size 7.0pt on input line 171.
 LaTeX Font Info:    Font shape `OT1/zi4/m/n' will be
 (Font)              scaled to size 5.0pt on input line 171.
- [58]
+ [63]
 Appendix A.
-<fig/photos/block.jpg, id=1488, 1072.50688pt x 846.66313pt>
+<fig/photos/block.jpg, id=1571, 1072.50688pt x 846.66313pt>
 File: fig/photos/block.jpg Graphic file (type jpg)
 <use fig/photos/block.jpg>
 Package pdftex.def Info: fig/photos/block.jpg  used on input line 184.
 (pdftex.def)             Requested size: 443.86319pt x 350.38972pt.
-<fig/photos/scm1.jpg, id=1489, 1108.64188pt x 875.27pt>
+<fig/photos/scm1.jpg, id=1572, 1108.64188pt x 875.27pt>
 File: fig/photos/scm1.jpg Graphic file (type jpg)
 <use fig/photos/scm1.jpg>
 Package pdftex.def Info: fig/photos/scm1.jpg  used on input line 191.
 (pdftex.def)             Requested size: 596.6504pt x 471.04945pt.
-<fig/photos/scm2.jpg, id=1490, 1069.49562pt x 845.1575pt>
+<fig/photos/scm2.jpg, id=1573, 1069.49562pt x 845.1575pt>
 File: fig/photos/scm2.jpg Graphic file (type jpg)
 <use fig/photos/scm2.jpg>
 Package pdftex.def Info: fig/photos/scm2.jpg  used on input line 198.
 (pdftex.def)             Requested size: 596.6504pt x 471.51822pt.
-<fig/photos/scm3.jpg, id=1491, 1088.56688pt x 861.2175pt>
+<fig/photos/scm3.jpg, id=1574, 1088.56688pt x 861.2175pt>
 File: fig/photos/scm3.jpg Graphic file (type jpg)
 <use fig/photos/scm3.jpg>
 Package pdftex.def Info: fig/photos/scm3.jpg  used on input line 205.
 (pdftex.def)             Requested size: 596.6504pt x 472.02844pt.
-<fig/photos/pcb.jpg, id=1492, 1434.86063pt x 736.7525pt>
+<fig/photos/pcb.jpg, id=1575, 1434.86063pt x 736.7525pt>
 File: fig/photos/pcb.jpg Graphic file (type jpg)
 <use fig/photos/pcb.jpg>
 Package pdftex.def Info: fig/photos/pcb.jpg  used on input line 212.
 (pdftex.def)             Requested size: 443.86319pt x 227.9075pt.
-<fig/photos/pcb3d.png, id=1493, 536.50438pt x 456.70625pt>
+<fig/photos/pcb3d.png, id=1576, 536.50438pt x 456.70625pt>
 File: fig/photos/pcb3d.png Graphic file (type png)
 <use fig/photos/pcb3d.png>
 Package pdftex.def Info: fig/photos/pcb3d.png  used on input line 219.
 (pdftex.def)             Requested size: 399.47415pt x 340.05492pt.
-[59
+[64
 
- <./fig/photos/block.jpg>] [60 <./fig/photos/scm1.jpg>] [61 <./fig/photos/scm2.
-jpg>] [62 <./fig/photos/scm3.jpg>] [63 <./fig/photos/pcb.jpg> <./fig/photos/pcb
+ <./fig/photos/block.jpg>] [65 <./fig/photos/scm1.jpg>] [66 <./fig/photos/scm2.
+jpg>] [67 <./fig/photos/scm3.jpg>] [68 <./fig/photos/pcb.jpg> <./fig/photos/pcb
 3d.png>]
 Appendix B.
 (C:\Users\NOS\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstlang1.sty
@@ -2608,42 +2648,42 @@ File: lstmisc.sty 2025/11/14 1.11b (Carsten Heinz)
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
 nput line 232.
 
-[64
+[69
 
-] [65]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [66]
-[67] [68] [69] [70]
+] [70]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [71]
-(C:\Users\NOS\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstlang1.sty
-File: lstlang1.sty 2025/11/14 1.11b listings language file
-)
-[72]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [73]
-[74]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [75]
+[72] [73] [74] [75]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [76]
-[77] [78]
-Appendix C.
-[79
+(C:\Users\NOS\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstlang1.sty
+File: lstlang1.sty 2025/11/14 1.11b listings language file
+)
+[77]
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-] [80]
-<fig/photos/final_rtk_delta.png, id=2323, 722.7pt x 361.35pt>
+ [78]
+[79]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [80]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [81]
+[82] [83]
+Appendix C.
+[84
+
+] [85]
+<fig/photos/final_rtk_delta.png, id=2405, 722.7pt x 361.35pt>
 File: fig/photos/final_rtk_delta.png Graphic file (type png)
 <use fig/photos/final_rtk_delta.png>
 Package pdftex.def Info: fig/photos/final_rtk_delta.png  used on input line 109
 8.
 (pdftex.def)             Requested size: 443.86319pt x 221.93394pt.
-<fig/photos/final_rtk_diff.png, id=2324, 722.7pt x 361.35pt>
+<fig/photos/final_rtk_diff.png, id=2406, 722.7pt x 361.35pt>
 File: fig/photos/final_rtk_diff.png Graphic file (type png)
 <use fig/photos/final_rtk_diff.png>
 Package pdftex.def Info: fig/photos/final_rtk_diff.png  used on input line 1105
@@ -2652,14 +2692,14 @@ Package pdftex.def Info: fig/photos/final_rtk_diff.png  used on input line 1105
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [81 <./fig/photos/final_rtk_delta.png>]
-<fig/photos/final_rtk_diff_hist.png, id=2331, 722.7pt x 361.35pt>
+ [86 <./fig/photos/final_rtk_delta.png>]
+<fig/photos/final_rtk_diff_hist.png, id=2413, 722.7pt x 361.35pt>
 File: fig/photos/final_rtk_diff_hist.png Graphic file (type png)
 <use fig/photos/final_rtk_diff_hist.png>
 Package pdftex.def Info: fig/photos/final_rtk_diff_hist.png  used on input line
  1112.
 (pdftex.def)             Requested size: 443.86319pt x 221.93394pt.
-<fig/photos/DCF diff over time.png, id=2332, 867.24pt x 361.35pt>
+<fig/photos/DCF diff over time.png, id=2414, 867.24pt x 361.35pt>
 File: fig/photos/DCF diff over time.png Graphic file (type png)
 <use fig/photos/DCF diff over time.png>
 Package pdftex.def Info: fig/photos/DCF diff over time.png  used on input line 
@@ -2668,14 +2708,14 @@ Package pdftex.def Info: fig/photos/DCF diff over time.png  used on input line
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [82 <./fig/photos/final_rtk_diff.png> <./fig/photos/final_rtk_diff_hist.png>]
-<fig/photos/DCF diff histogram.png, id=2340, 578.16pt x 361.35pt>
+ [87 <./fig/photos/final_rtk_diff.png> <./fig/photos/final_rtk_diff_hist.png>]
+<fig/photos/DCF diff histogram.png, id=2422, 578.16pt x 361.35pt>
 File: fig/photos/DCF diff histogram.png Graphic file (type png)
 <use fig/photos/DCF diff histogram.png>
 Package pdftex.def Info: fig/photos/DCF diff histogram.png  used on input line 
 1126.
 (pdftex.def)             Requested size: 443.86319pt x 277.4133pt.
-<fig/photos/ROS arrival diff over time.png, id=2341, 867.24pt x 361.35pt>
+<fig/photos/ROS arrival diff over time.png, id=2423, 867.24pt x 361.35pt>
 File: fig/photos/ROS arrival diff over time.png Graphic file (type png)
 <use fig/photos/ROS arrival diff over time.png>
 Package pdftex.def Info: fig/photos/ROS arrival diff over time.png  used on inp
@@ -2684,8 +2724,8 @@ ut line 1133.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [83 <./fig/photos/DCF diff over time.png> <./fig/photos/DCF diff histogram.png
->] [84 <./fig/photos/ROS arrival diff over time.png>]
+ [88 <./fig/photos/DCF diff over time.png> <./fig/photos/DCF diff histogram.png
+>] [89 <./fig/photos/ROS arrival diff over time.png>]
 
 enddocument/afterlastpage (AED): lastpage setting LastPage.
 (main.aux)
@@ -2701,36 +2741,37 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 LaTeX Warning: There were undefined references.
 
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: F3E8B500CFE76143B9949B59918F4590;24457.
+(rerunfilecheck)             Checksum: E225973851947D3404D1546D8ECE5139;25869.
 Package logreq Info: Writing requests to 'main.run.xml'.
 \openout1 = `main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 60258 strings out of 467867
- 1370985 string characters out of 5419302
- 2421557 words of memory out of 5000000
- 87087 multiletter control sequences out of 15000+600000
- 645827 words of font info for 110 fonts, out of 8000000 for 9000
+ 60319 strings out of 467867
+ 1372856 string characters out of 5419302
+ 2421908 words of memory out of 5000000
+ 87130 multiletter control sequences out of 15000+600000
+ 646168 words of font info for 111 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  103i,17n,111p,1883b,2973s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<C:/Users/NOS/AppData/Local/Programs/MiKTeX/fonts/type1/public/inconsolata/In
-consolata-zi4r.pfb><C:/Users/NOS/AppData/Local/Programs/MiKTeX/fonts/type1/publ
-ic/amsfonts/cm/cmbx10.pfb><C:/Users/NOS/AppData/Local/Programs/MiKTeX/fonts/typ
-e1/public/amsfonts/cm/cmbx12.pfb><C:/Users/NOS/AppData/Local/Programs/MiKTeX/fo
-nts/type1/public/amsfonts/cm/cmcsc10.pfb><C:/Users/NOS/AppData/Local/Programs/M
-iKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/NOS/AppData/Local/Pro
-grams/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/NOS/AppData/Loc
-al/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/NOS/AppDa
-ta/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/NOS
-/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/User
-s/NOS/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:
-/Users/NOS/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.
-pfb><C:/Users/NOS/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/
-cmti10.pfb>
-Output written on main.pdf (96 pages, 8081962 bytes).
+ <C:\Users\NOS\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm10
+95.pk><C:/Users/NOS/AppData/Local/Programs/MiKTeX/fonts/type1/public/inconsolat
+a/Inconsolata-zi4r.pfb><C:/Users/NOS/AppData/Local/Programs/MiKTeX/fonts/type1/
+public/amsfonts/cm/cmbx10.pfb><C:/Users/NOS/AppData/Local/Programs/MiKTeX/fonts
+/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/NOS/AppData/Local/Programs/MiKTe
+X/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><C:/Users/NOS/AppData/Local/Progra
+ms/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/NOS/AppData/Local
+/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/NOS/AppData
+/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/NOS/A
+ppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users
+/NOS/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/
+Users/NOS/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb
+><C:/Users/NOS/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cms
+y10.pfb><C:/Users/NOS/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts
+/cm/cmti10.pfb>
+Output written on main.pdf (102 pages, 8571658 bytes).
 PDF statistics:
- 2624 PDF objects out of 2984 (max. 8388607)
- 1067 named destinations out of 1200 (max. 500000)
- 1212 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 2717 PDF objects out of 2984 (max. 8388607)
+ 1084 named destinations out of 1200 (max. 500000)
+ 1288 words of extra memory for PDF output out of 10000 (max. 10000000)
 

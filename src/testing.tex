@@ -102,6 +102,91 @@ The final implementation kept \texttt{RTK\_DIFF} equal to 0 ms for all synchroni
 
 The result confirms that the final PPS-driven implementation eliminated the observable long-term drift that occurred when the software clock relied only on local timer timing. However, this result should not be interpreted as proof of sub-microsecond synchronization accuracy. It demonstrates stable PPS-driven second generation at the resolution of the implemented firmware and ROS2 logging pipeline.
 
+\section{Physical synchronization accuracy measurement}
+
+The previously presented  \texttt{RTK\_DIFF} metric represented a software-level synchronization result because both timestamps were generated from the same PPS-driven event inside the STM32 firmware. After the RTK PPS signal became the direct trigger for the software clock increment, both timing variables were assigned from the same timer read operation within the same interrupt context. As a result, the calculated  \texttt{RTK\_DIFF} value converged to approximately 0 ms. While this behavior confirmed that the software clock was successfully driven by the PPS signal, it did not directly measure the real physical synchronization accuracy of the system.
+
+To evaluate the actual timing precision of the implemented synchronization architecture, an additional hardware-level measurement methodology was introduced. The objective of this experiment was to measure the physical timing difference between the external RTK PPS signal and the STM32-generated synchronization event.
+
+\subsection{Measurement Methodology}
+
+\noindent A logic analyzer was used to capture two independent digital signals:
+
+\begin{itemize} \item RTK PPS input signal connected to the STM32 synchronization input, \item STM32 GPIO synchronization output toggled immediately after the software second increment operation. \end{itemize}
+
+The GPIO output pin was toggled directly inside the PPS interrupt handling routine after execution of the software clock update function. The implementation used for the measurement was conceptually equivalent to the following example:
+
+\begin{verbatim} HAL_GPIO_TogglePin(TEST_GPIO_Port, TEST_Pin); clock_add_one_second(); \end{verbatim}
+
+The logic analyzer simultaneously captured the RTK PPS rising edge and the STM32 synchronization output edge. The measured delay between these two signals represented the physical synchronization offset of the implemented system.
+\\
+The experiment focused on the following parameters:
+
+\begin{itemize} \item average synchronization offset, \item synchronization jitter, \item long-term timing stability, \item occurrence of latency spikes. \end{itemize}
+
+The current implementation used STM32 EXTI interrupt handling together with the HAL library and TIM2 timer infrastructure. Therefore, the measured synchronization precision included:
+
+\begin{itemize} \item interrupt latency, \item HAL software overhead, \item GPIO switching delay, \item timer access overhead, \item internal MCU scheduling effects. \end{itemize}
+
+\subsection{Physical Synchronization Offset}
+
+Figure~\ref{fig:physical_offset_over_time} shows the measured synchronization offset between the RTK PPS signal and the STM32 synchronization output over time.
+
+The results demonstrated relatively stable synchronization behavior with a dominant offset region below several hundred microseconds. The average measured offset remained approximately in the low hundreds of microseconds, while occasional larger latency spikes were also observed.
+
+The observed spikes were attributed primarily to interrupt latency variations, HAL processing overhead, and temporary execution delays caused by concurrent firmware activity.
+
+\begin{figure}[H] \centering \includegraphics[width=0.9\textwidth]{fig/photos/physical_offset_over_time.png} \caption{Physical synchronization offset over time.} \label{fig:physical_offset_over_time} \end{figure}
+
+\subsection{Synchronization Offset Distribution}
+
+\noindend Figure~\ref{fig:physical_offset_histogram} presents the statistical distribution of the measured synchronization offsets.
+
+Most synchronization events remained concentrated within the lower offset region, indicating stable interrupt response behavior during normal operation. A smaller number of samples formed a long-tail distribution caused by occasional latency spikes.
+
+The measured behavior was considered acceptable for the intended low-cost synchronization prototype architecture and demonstrated that the implemented PPS-based synchronization approach successfully achieved sub-millisecond physical timing alignment.
+
+\begin{figure}[H] \centering \includegraphics[width=0.9\textwidth]{fig/photos/physical_offset_histogram.png} \caption{Distribution of physical synchronization offset.} \label{fig:physical_offset_histogram} \end{figure}
+
+\subsection{Synchronization Jitter}
+
+Synchronization jitter represented the short-term variation of the synchronization offset relative to its average value. Unlike clock drift, which accumulates gradually over long periods of time, jitter describes fast timing fluctuations between individual synchronization events.
+
+Figure~\ref{fig:physical_jitter_over_time} shows the measured synchronization jitter during the experiment.
+
+The results indicated relatively stable short-term synchronization behavior with fluctuations remaining within a limited range during normal operation. The largest deviations corresponded to the previously identified interrupt latency spikes.
+
+\begin{figure}[H] \centering \includegraphics[width=0.9\textwidth]{fig/photos/physical_jitter_over_time.png} \caption{Synchronization jitter relative to the average synchronization offset.} \label{fig:physical_jitter_over_time} \end{figure}
+
+\subsection{Normal Operating Region}
+
+To better visualize the dominant synchronization behavior during normal operation, Figure~\ref{fig:physical_offset_normal_region} excludes the largest latency spikes from the measurement set.
+
+The majority of synchronization events remained concentrated within a relatively narrow timing region, confirming that the implemented synchronization mechanism achieved stable PPS-driven timing operation under standard conditions.
+
+\begin{figure}[H] \centering \includegraphics[width=0.9\textwidth]{fig/photos/physical_offset_normal_region.png} \caption{Normal operating region excluding large latency spikes.} \label{fig:physical_offset_normal_region} \end{figure}
+
+\subsection{Discussion}
+
+The performed hardware-level validation demonstrated that the implemented synchronization architecture successfully eliminated long-term software clock drift by directly disciplining the software clock using the external RTK PPS signal.
+
+Although the software-level \texttt{RTK\_DIFF} metric converged to approximately 0 ms due to the implemented firmware architecture, the additional logic analyzer measurements showed that the real physical synchronization precision was limited primarily by interrupt handling latency and software processing overhead.
+
+The achieved synchronization precision remained within the sub-millisecond range during typical operation and demonstrated stable PPS-driven synchronization behavior suitable for the intended embedded and ROS2 integration experiments:
+
+\begin{itemize}
+    \item Average PPS → GPIO offset: 50–300 µs
+    \item Jitter: ±20–100 µs
+    \item Occasional spikes: 0.5–2 ms
+    \item Worst case: 11 ms
+\end{itemize}
+
+\noindent The results also showed that further improvements could be achieved by:
+
+\begin{itemize} \item using direct timer input capture instead of EXTI-only processing, \item reducing HAL overhead using lower-level register access, \item increasing timer resolution, \item minimizing interrupt service routine execution time, \item using hardware compare/toggle peripherals. \end{itemize}
+
+Despite these limitations, the implemented architecture successfully demonstrated practical external clock discipline using a low-cost STM32 platform integrated with DCF77 and RTK PPS timing references.
+
 \section{Two-Board Synchronization Comparison}
 
 A two-board comparison test was performed to evaluate whether two independent synchronization PCBs could produce comparable synchronized time outputs. Each board received its own synchronization input and transmitted UART diagnostic messages to the ROS2 environment through a separate CP2102 USB-UART bridge.

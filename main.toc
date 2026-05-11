@@ -99,29 +99,36 @@
 \contentsline {section}{\numberline {7.1}Measurement Setup}{48}{section.7.1}%
 \contentsline {section}{\numberline {7.2}Single-Board DCF77 Synchronization Test}{49}{section.7.2}%
 \contentsline {section}{\numberline {7.3}RTK PPS Synchronization Evaluation}{49}{section.7.3}%
-\contentsline {section}{\numberline {7.4}Two-Board Synchronization Comparison}{51}{section.7.4}%
-\contentsline {section}{\numberline {7.5}ROS2 Logging and Arrival-Time Analysis}{51}{section.7.5}%
-\contentsline {section}{\numberline {7.6}Communication Reliability}{52}{section.7.6}%
-\contentsline {section}{\numberline {7.7}Limitations of the Measurement Method}{53}{section.7.7}%
-\contentsline {section}{\numberline {7.8}Evaluation Summary}{53}{section.7.8}%
-\contentsline {chapter}{\numberline {8}Conclusion}{55}{chapter.8}%
-\contentsline {section}{\numberline {8.1}Summary of Results}{55}{section.8.1}%
-\contentsline {section}{\numberline {8.2}Future Work}{56}{section.8.2}%
-\contentsline {chapter}{\numberline {9}References}{57}{chapter.9}%
-\contentsline {chapter}{\numberline {A}Schematic and PCB Layouts}{59}{appendix.A}%
-\contentsline {chapter}{\numberline {B}Firmware Code Listings}{64}{appendix.B}%
-\contentsline {section}{\numberline {B.1}DCF77 Decoding and Validation}{64}{section.B.1}%
-\contentsline {section}{\numberline {B.2}Software Real-Time Clock}{65}{section.B.2}%
-\contentsline {section}{\numberline {B.3}DCF77 Clock Synchronization}{67}{section.B.3}%
-\contentsline {section}{\numberline {B.4}UART Diagnostic Message Generation}{68}{section.B.4}%
-\contentsline {section}{\numberline {B.5}Main Firmware Loop}{69}{section.B.5}%
-\contentsline {section}{\numberline {B.6}External Interrupt Callback}{70}{section.B.6}%
-\contentsline {section}{\numberline {B.7}ROS2 Serial Node}{72}{section.B.7}%
-\contentsline {section}{\numberline {B.8}ROS2 Comparison Node}{74}{section.B.8}%
-\contentsline {section}{\numberline {B.9}RTK PPS Analysis Script}{77}{section.B.9}%
-\contentsline {chapter}{\numberline {C}Test Data and Results}{79}{appendix.C}%
-\contentsline {section}{\numberline {C.1}Raw Terminal Outputs}{79}{section.C.1}%
-\contentsline {section}{\numberline {C.2}RTK PPS Analysis Output}{79}{section.C.2}%
-\contentsline {section}{\numberline {C.3}Two-Board Comparison Output}{80}{section.C.3}%
-\contentsline {section}{\numberline {C.4}Generated Plots}{81}{section.C.4}%
-\contentsline {section}{\numberline {C.5}CSV Log Format}{84}{section.C.5}%
+\contentsline {section}{\numberline {7.4}Physical synchronization accuracy measurement}{51}{section.7.4}%
+\contentsline {subsection}{\numberline {7.4.1}Measurement Methodology}{51}{subsection.7.4.1}%
+\contentsline {subsection}{\numberline {7.4.2}Physical Synchronization Offset}{52}{subsection.7.4.2}%
+\contentsline {subsection}{\numberline {7.4.3}Synchronization Offset Distribution}{52}{subsection.7.4.3}%
+\contentsline {subsection}{\numberline {7.4.4}Synchronization Jitter}{53}{subsection.7.4.4}%
+\contentsline {subsection}{\numberline {7.4.5}Normal Operating Region}{54}{subsection.7.4.5}%
+\contentsline {subsection}{\numberline {7.4.6}Discussion}{54}{subsection.7.4.6}%
+\contentsline {section}{\numberline {7.5}Two-Board Synchronization Comparison}{55}{section.7.5}%
+\contentsline {section}{\numberline {7.6}ROS2 Logging and Arrival-Time Analysis}{55}{section.7.6}%
+\contentsline {section}{\numberline {7.7}Communication Reliability}{56}{section.7.7}%
+\contentsline {section}{\numberline {7.8}Limitations of the Measurement Method}{56}{section.7.8}%
+\contentsline {section}{\numberline {7.9}Evaluation Summary}{57}{section.7.9}%
+\contentsline {chapter}{\numberline {8}Conclusion}{59}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Summary of Results}{60}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Future Work}{60}{section.8.2}%
+\contentsline {chapter}{\numberline {9}References}{62}{chapter.9}%
+\contentsline {chapter}{\numberline {A}Schematic and PCB Layouts}{64}{appendix.A}%
+\contentsline {chapter}{\numberline {B}Firmware Code Listings}{69}{appendix.B}%
+\contentsline {section}{\numberline {B.1}DCF77 Decoding and Validation}{69}{section.B.1}%
+\contentsline {section}{\numberline {B.2}Software Real-Time Clock}{70}{section.B.2}%
+\contentsline {section}{\numberline {B.3}DCF77 Clock Synchronization}{72}{section.B.3}%
+\contentsline {section}{\numberline {B.4}UART Diagnostic Message Generation}{73}{section.B.4}%
+\contentsline {section}{\numberline {B.5}Main Firmware Loop}{74}{section.B.5}%
+\contentsline {section}{\numberline {B.6}External Interrupt Callback}{75}{section.B.6}%
+\contentsline {section}{\numberline {B.7}ROS2 Serial Node}{77}{section.B.7}%
+\contentsline {section}{\numberline {B.8}ROS2 Comparison Node}{79}{section.B.8}%
+\contentsline {section}{\numberline {B.9}RTK PPS Analysis Script}{82}{section.B.9}%
+\contentsline {chapter}{\numberline {C}Test Data and Results}{84}{appendix.C}%
+\contentsline {section}{\numberline {C.1}Raw Terminal Outputs}{84}{section.C.1}%
+\contentsline {section}{\numberline {C.2}RTK PPS Analysis Output}{84}{section.C.2}%
+\contentsline {section}{\numberline {C.3}Two-Board Comparison Output}{85}{section.C.3}%
+\contentsline {section}{\numberline {C.4}Generated Plots}{86}{section.C.4}%
+\contentsline {section}{\numberline {C.5}CSV Log Format}{89}{section.C.5}%
